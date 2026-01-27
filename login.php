@@ -57,7 +57,7 @@ require __DIR__ . '/inc/header.php';
       </form>
 
       <div class="small-muted mt-3">
-        Seguridad: se utilizan consultas preparadas (mitiga SQL Injection) y se escapan salidas (mitiga XSS).
+        Seguridad: Sólo tendrá acceso a los datos correspondientes de su Escuela Normal.
       </div>
     </div>
   </div>
