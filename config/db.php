@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 $DB_HOST = 'localhost';
 $DB_NAME = 'enpem_normalismo';
-$DB_USER = 'carlosqa';
-$DB_PASS = '2zTC#*Cx*5M.w538\Jw%Gq{nY';
+$DB_USER = 'enpem_enpem';
+$DB_PASS = '1NF0RM4T1C4+';
 $DB_CHARSET = 'utf8mb4';
 
 $dsn = "mysql:host={$DB_HOST};dbname={$DB_NAME};charset={$DB_CHARSET}";

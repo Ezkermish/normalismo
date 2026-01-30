@@ -18,6 +18,9 @@ $user = $_SESSION['user'];
   <title>Registrar participantes | Normalismo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="<?= htmlspecialchars(url('/assets/css/theme.css')) ?>" rel="stylesheet">
+  <script>
+    const BASE_URL = <?= json_encode(BASE_URL, JSON_UNESCAPED_SLASHES) ?>;
+  </script>
 </head>
 <body>
 
@@ -51,13 +54,16 @@ $user = $_SESSION['user'];
           <div class="d-flex gap-2 align-items-end">
             <div class="flex-grow-1">
               <label class="form-label">Buscar alumno</label>
-              <input id="q" class="form-control" placeholder="CURP, matrícula o nombre (mín. 2 caracteres)">
+              <input id="q" class="form-control" placeholder="CURP, matrícula o nombre (mín. 3 caracteres)" autocomplete="off">
               <div class="form-text text-secondary">
                 Sugerencia: pegue/escanee la CURP y presione Enter.
               </div>
             </div>
-            <button id="btnBuscar" class="btn btn-guinda">Buscar</button>
+            <button id="btnBuscar" class="btn btn-guinda" type="button">Buscar</button>
           </div>
+
+          <!-- ALERTA (NUEVO) -->
+          <div id="alertAlumno" class="alert alert-danger d-none mt-3" role="alert"></div>
 
           <hr class="my-3">
 
@@ -87,6 +93,7 @@ $user = $_SESSION['user'];
         </div>
       </div>
     </div>
+
 
     <!-- Panel B: selección + registro -->
     <div class="col-lg-5">

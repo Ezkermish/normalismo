@@ -32,12 +32,34 @@ $user = $_SESSION['user'];
 </nav>
 
 <div class="container py-4">
-  <div class="card">
-    <div class="card-body">
-      <h1 class="h5 mb-1">Acceso correcto</h1>
-      <p class="text-secondary mb-0">
-        En la siguiente fase conectaremos el registro de participaciones y el avance por fases.
-      </p>
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <h1 class="h5 mb-1">Panel de control</h1>
+          <p class="text-secondary mb-3">
+            Seleccione una opción para iniciar la captura y seguimiento.
+          </p>
+
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones.php')) ?>">
+              Registrar participantes (lote)
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="text-secondary small">Sesión</div>
+          <div class="fw-semibold"><?= htmlspecialchars((string)$user['nomUsuario']) ?></div>
+          <div class="text-secondary small">Escuela (CCT)</div>
+          <div class="fw-semibold"><?= htmlspecialchars((string)$user['escuela']) ?></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
