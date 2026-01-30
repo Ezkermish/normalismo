@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/inc/auth.php';
+session_start();
+require_once __DIR__ . '/config/app.php';
 
-if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 if (!empty($_SESSION['user'])) {
-  header('Location: ' . url('home.php'));
+  header('Location: ' . url('/dashboard/index.php'));
   exit;
 }
-header('Location: ' . url('login.php'));
+header('Location: ' . url('/auth/login.php'));
 exit;
