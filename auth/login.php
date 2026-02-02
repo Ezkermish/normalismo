@@ -30,12 +30,12 @@ unset($_SESSION['login_error']);
     <div class="row w-100" style="max-width: 980px;">
       <div class="col-lg-6 mb-3">
         <div class="p-4">
-          <div class="login-info">
+          <div class="login-info-box">
             <img
               src="<?= htmlspecialchars(url('/assets/img/logo-dgen_TI.png')) ?>"
               alt="ENPEM – Escuelas Normales Públicas del Estado de México"
               class="login-logo mb-3">
-
+              <br>
             <span class="badge badge-wine mb-3">ENPEM • Normalismo</span>
 
             <h1 class="h3 mb-2 text-wine">Ingreso al sistema</h1>
@@ -85,14 +85,14 @@ unset($_SESSION['login_error']);
               </div>
 
               <div class="mt-3 text-secondary small">
-                ¿Problemas de acceso? Contacte al administrador de la DGEN.
+                ¿Problemas de acceso? Contacte al área de TI la DGEN.
               </div>
             </form>
 
           </div>
         </div>
         <div class="text-center mt-3 small text-secondary">
-          © <?= date('Y') ?> ENPEM • Normalismo
+          © <?= date('Y') ?> DGEN - TI • Normalismo
         </div>
       </div>
     </div>

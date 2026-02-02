@@ -19,6 +19,7 @@ body {
 .card {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 14px;
+  background: rgba(255, 255, 255, 0.62); /* fondo claro */
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
@@ -63,4 +64,31 @@ a.link-wine:hover {
 .form-control:focus {
   border-color: var(--c-oro);
   box-shadow: 0 0 0 0.25rem rgba(188, 149, 91, 0.25);
+}
+
+/* Caja informativa del login (lado izquierdo) */
+.login-info-box {
+  padding: 2rem;
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.62); /* fondo claro */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo institucional */
+.login-logo {
+  display: block;
+  max-width: 269px;
+  width: 100%;
+  height: auto;
+}
+
+/* Ajustes responsive */
+@media (max-width: 992px) {
+  .login-info-box {
+    padding: 1.5rem;
+  }
 }
