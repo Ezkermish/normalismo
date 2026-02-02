@@ -1,75 +1,82 @@
 <?php
 declare(strict_types=1);
-session_start();
 
+session_start();
 require_once __DIR__ . '/../config/app.php';
 
 if (empty($_SESSION['user'])) {
   header('Location: ' . url('/auth/login.php'));
   exit;
 }
-$user = $_SESSION['user'];
 ?>
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
+  <title>Registrar participaciones | Normalismo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Registrar participantes | Normalismo</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="<?= htmlspecialchars(url('/assets/css/theme.css')) ?>" rel="stylesheet">
-  <script>
-    const BASE_URL = <?= json_encode(BASE_URL, JSON_UNESCAPED_SLASHES) ?>;
-  </script>
 </head>
+
 <body>
 
 <nav class="navbar navbar-expand-lg bg-white border-bottom">
-  <div class="container">
-    <a class="navbar-brand" href="<?= htmlspecialchars(url('/dashboard/index.php')) ?>" style="color: var(--c-wine); font-weight: 700;">Normalismo</a>
-    <div class="ms-auto d-flex align-items-center gap-2">
-      <span class="badge badge-wine">CCT: <?= htmlspecialchars((string)$user['escuela']) ?></span>
-      <span class="text-secondary small"><?= htmlspecialchars((string)$user['nomUsuario']) ?></span>
-      <a class="btn btn-outline-secondary btn-sm" href="<?= htmlspecialchars(url('/auth/logout.php')) ?>">Salir</a>
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold" href="<?= htmlspecialchars(url('/dashboard/index.php')) ?>" style="color: var(--c-wine);">
+      Normalismo
+    </a>
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <span class="badge badge-wine">
+        CCT: <?= htmlspecialchars($_SESSION['user']['escuela']) ?>
+      </span>
+      <span class="text-secondary small">
+        <?= htmlspecialchars($_SESSION['user']['nomUsuario']) ?>
+      </span>
+      <a href="<?= htmlspecialchars(url('/auth/logout.php')) ?>" class="btn btn-outline-secondary btn-sm">
+        Salir
+      </a>
     </div>
   </div>
 </nav>
 
-<div class="container py-4">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <div>
-      <h1 class="h5 mb-1">Registrar participantes (por lote)</h1>
-      <div class="text-secondary small">
-        Busque alumnos por CURP, matrícula o nombre; agréguelo(s) a la selección y registre su participación.
-      </div>
-    </div>
-    <a class="btn btn-outline-secondary btn-sm" href="<?= htmlspecialchars(url('/dashboard/index.php')) ?>">Volver</a>
-  </div>
+<div class="container-fluid px-4 py-4">
+  <h1 class="h5 mb-3">Registro de participantes (alumnos)</h1>
 
   <div class="row g-3">
-    <!-- Panel A: búsqueda -->
+
+    <!-- ========================= -->
+    <!-- Panel A: búsqueda alumnos -->
+    <!-- ========================= -->
     <div class="col-lg-7">
       <div class="card">
         <div class="card-body">
+
           <div class="d-flex gap-2 align-items-end">
             <div class="flex-grow-1">
               <label class="form-label">Buscar alumno</label>
-              <input id="q" class="form-control" placeholder="CURP, matrícula o nombre (mín. 3 caracteres)" autocomplete="off">
+              <input id="q" class="form-control"
+                     placeholder="CURP, matrícula o nombre (mín. 3 caracteres)"
+                     autocomplete="off">
               <div class="form-text text-secondary">
-                Sugerencia: pegue/escanee la CURP y presione Enter.
+                Sugerencia: pegue o escanee la CURP y presione Enter.
               </div>
             </div>
-            <button id="btnBuscar" class="btn btn-guinda" type="button">Buscar</button>
+            <button id="btnBuscar" class="btn btn-guinda" type="button">
+              Buscar
+            </button>
           </div>
 
-          <!-- ALERTA (NUEVO) -->
-          <div id="alertAlumno" class="alert alert-danger d-none mt-3" role="alert"></div>
+          <div id="alertAlumno" class="alert alert-danger d-none mt-3"></div>
 
           <hr class="my-3">
 
           <div class="d-flex align-items-center justify-content-between">
             <div class="fw-semibold">Resultados</div>
-            <div class="text-secondary small" id="resCount">0</div>
+            <div class="text-secondary small">
+              <span id="resCount">0</span>
+            </div>
           </div>
 
           <div class="table-responsive mt-2">
@@ -84,7 +91,9 @@ $user = $_SESSION['user'];
               </thead>
               <tbody id="tbodyResultados">
                 <tr>
-                  <td colspan="4" class="text-secondary">Realice una búsqueda.</td>
+                  <td colspan="4" class="text-secondary">
+                    Realice una búsqueda.
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -94,17 +103,20 @@ $user = $_SESSION['user'];
       </div>
     </div>
 
-
-    <!-- Panel B: selección + registro -->
+    <!-- ========================= -->
+    <!-- Panel B: selección + alta -->
+    <!-- ========================= -->
     <div class="col-lg-5">
       <div class="card mb-3">
         <div class="card-body">
+
           <div class="fw-semibold mb-2">Selección actual</div>
           <div class="text-secondary small mb-2">
-            Alumnos seleccionados: <span id="selCount" class="fw-semibold">0</span>
+            Alumnos seleccionados:
+            <span id="selCount" class="fw-semibold">0</span>
           </div>
 
-          <div class="table-responsive" style="max-height: 260px; overflow:auto;">
+          <div class="table-responsive" style="max-height:260px; overflow:auto;">
             <table class="table table-sm align-middle mb-2">
               <thead>
                 <tr class="text-secondary small">
@@ -113,13 +125,17 @@ $user = $_SESSION['user'];
                 </tr>
               </thead>
               <tbody id="tbodySeleccion">
-                <tr><td class="text-secondary" colspan="2">Sin selección.</td></tr>
+                <tr>
+                  <td colspan="2" class="text-secondary">Sin selección.</td>
+                </tr>
               </tbody>
             </table>
           </div>
 
-          <div class="d-flex gap-2">
-            <button id="btnLimpiar" class="btn btn-outline-secondary btn-sm">Limpiar selección</button>
+          <div class="d-flex gap-2 mb-2">
+            <button id="btnLimpiar" class="btn btn-outline-secondary btn-sm">
+              Limpiar selección
+            </button>
           </div>
 
           <hr class="my-3">
@@ -134,9 +150,6 @@ $user = $_SESSION['user'];
               <option value="ARTISTICO-CULTURALES">Artístico-culturales</option>
               <option value="DEPORTIVAS">Deportivas</option>
             </select>
-            <div class="form-text text-secondary">
-              El valor debe coincidir con <code>actividades.tipoActividad</code>.
-            </div>
           </div>
 
           <div class="mb-3">
@@ -171,229 +184,367 @@ $user = $_SESSION['user'];
 
       <div id="alertBox"></div>
     </div>
+
   </div>
 </div>
 
+<!-- ========================= -->
+<!-- JS -->
+<!-- ========================= -->
 <script>
-const BASE = <?= json_encode(url('')) ?>; // "/normalismo"
-const state = { resultados: [], seleccion: new Map() };
+  const BASE_URL = <?= json_encode(BASE_URL, JSON_UNESCAPED_SLASHES) ?>;
+</script>
 
-const $q = document.getElementById('q');
-const $btnBuscar = document.getElementById('btnBuscar');
-const $tbodyResultados = document.getElementById('tbodyResultados');
-const $resCount = document.getElementById('resCount');
+<script>
+  // ==========
+  // Referencias UI (Panel A)
+  // ==========
+  const inputQ = document.getElementById('q');
+  const btnBuscar = document.getElementById('btnBuscar');
+  const alertAlumno = document.getElementById('alertAlumno');
+  const resCount = document.getElementById('resCount');
+  const tbodyResultados = document.getElementById('tbodyResultados');
 
-const $tbodySeleccion = document.getElementById('tbodySeleccion');
-const $selCount = document.getElementById('selCount');
-const $btnLimpiar = document.getElementById('btnLimpiar');
+  // ==========
+  // Referencias UI (Panel B)
+  // ==========
+  const selCount = document.getElementById('selCount');
+  const tbodySeleccion = document.getElementById('tbodySeleccion');
+  const btnLimpiar = document.getElementById('btnLimpiar');
+  const tipoActividad = document.getElementById('tipoActividad');
+  const idActividad = document.getElementById('idActividad');
+  const btnRegistrar = document.getElementById('btnRegistrar');
+  const alertBox = document.getElementById('alertBox');
 
-const $tipoActividad = document.getElementById('tipoActividad');
-const $idActividad = document.getElementById('idActividad');
-const $btnRegistrar = document.getElementById('btnRegistrar');
+  // ==========
+  // Estado (carrito)
+  // ==========
+  const selected = new Map(); // key: idAlumno (string) -> alumno
 
-const $alertBox = document.getElementById('alertBox');
-
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-function showAlert(type, msg) {
-  $alertBox.innerHTML = `
-    <div class="alert alert-${type} mt-2" role="alert">
-      ${escapeHtml(msg)}
-    </div>
-  `;
-}
-function clearAlert(){ $alertBox.innerHTML=''; }
-
-function renderResultados(items){
-  $resCount.textContent = String(items.length);
-  if (!items.length){
-    $tbodyResultados.innerHTML = `<tr><td colspan="4" class="text-secondary">Sin resultados.</td></tr>`;
-    return;
-  }
-  $tbodyResultados.innerHTML = items.map(it => {
-    const disabled = state.seleccion.has(it.idAlumno) ? 'disabled' : '';
-    return `
-      <tr>
-        <td>
-          <div class="fw-semibold">${escapeHtml(it.nombreCompleto)}</div>
-          <div class="text-secondary small">${escapeHtml(it.licenciatura || '')}</div>
-        </td>
-        <td class="small">${escapeHtml(it.curp || '')}</td>
-        <td class="small">${escapeHtml(it.matricula || '')}</td>
-        <td class="text-end">
-          <button class="btn btn-sm btn-outline-secondary" data-add="${escapeHtml(it.idAlumno)}" ${disabled}>Agregar</button>
-        </td>
-      </tr>`;
-  }).join('');
-
-  document.querySelectorAll('[data-add]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.getAttribute('data-add');
-      const item = items.find(x => x.idAlumno === id);
-      if (item) addToSeleccion(item);
-    });
-  });
-}
-
-function renderSeleccion(){
-  $selCount.textContent = String(state.seleccion.size);
-  if (!state.seleccion.size){
-    $tbodySeleccion.innerHTML = `<tr><td class="text-secondary" colspan="2">Sin selección.</td></tr>`;
-  } else {
-    const arr = Array.from(state.seleccion.values());
-    $tbodySeleccion.innerHTML = arr.map(it => `
-      <tr>
-        <td>
-          <div class="fw-semibold">${escapeHtml(it.nombreCompleto)}</div>
-          <div class="text-secondary small">${escapeHtml(it.curp || '')}</div>
-        </td>
-        <td class="text-end">
-          <button class="btn btn-sm btn-outline-danger" data-del="${escapeHtml(it.idAlumno)}">Quitar</button>
-        </td>
-      </tr>
-    `).join('');
-    document.querySelectorAll('[data-del]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-del');
-        state.seleccion.delete(id);
-        renderSeleccion();
-        renderResultados(state.resultados);
-        updateRegistrarEnabled();
-      });
-    });
-  }
-  updateRegistrarEnabled();
-}
-
-function addToSeleccion(item){
-  state.seleccion.set(item.idAlumno, item);
-  renderSeleccion();
-  renderResultados(state.resultados);
-  updateRegistrarEnabled();
-}
-
-function updateRegistrarEnabled(){
-  const hasSel = state.seleccion.size > 0;
-  const actOk = !!$idActividad.value;
-  $btnRegistrar.disabled = !(hasSel && actOk);
-}
-
-async function buscar(){
-  clearAlert();
-  const q = $q.value.trim();
-  if (q.length < 2){ showAlert('warning','Capture al menos 2 caracteres para buscar.'); return; }
-
-  $btnBuscar.disabled = true;
-  $btnBuscar.textContent = 'Buscando…';
-
-  try{
-    const resp = await fetch(`${BASE}/api/search_alumnos.php?q=${encodeURIComponent(q)}`, { credentials:'same-origin' });
-    const data = await resp.json();
-    if (!data.ok) throw new Error(data.error || 'Error de búsqueda');
-    state.resultados = data.items || [];
-    renderResultados(state.resultados);
-  } catch(e){
-    showAlert('danger', e.message || 'Error inesperado.');
-  } finally{
-    $btnBuscar.disabled = false;
-    $btnBuscar.textContent = 'Buscar';
-  }
-}
-
-async function cargarActividades(){
-  clearAlert();
-  const tipo = $tipoActividad.value;
-  $idActividad.disabled = true;
-  $idActividad.innerHTML = `<option value="">Cargando…</option>`;
-  updateRegistrarEnabled();
-
-  if (!tipo){
-    $idActividad.innerHTML = `<option value="">Seleccione tipo primero…</option>`;
-    return;
+  // ==========
+  // Helpers UI
+  // ==========
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
   }
 
-  try{
-    const resp = await fetch(`${BASE}/api/get_actividades.php?tipo=${encodeURIComponent(tipo)}`, { credentials:'same-origin' });
-    const data = await resp.json();
-    if (!data.ok) throw new Error(data.error || 'Error al cargar actividades');
+  function showAlertAlumno(msg) {
+    if (!alertAlumno) return;
+    alertAlumno.textContent = msg;
+    alertAlumno.classList.remove('d-none');
+  }
+  function hideAlertAlumno() {
+    if (!alertAlumno) return;
+    alertAlumno.textContent = '';
+    alertAlumno.classList.add('d-none');
+  }
 
-    const items = data.items || [];
-    if (!items.length){
-      $idActividad.innerHTML = `<option value="">No hay actividades para este tipo.</option>`;
+  function showAlert(type, msg) {
+    // type: 'success' | 'danger' | 'warning' | 'info'
+    alertBox.innerHTML = `
+      <div class="alert alert-${escapeHtml(type)}" role="alert">
+        ${escapeHtml(msg)}
+      </div>
+    `;
+  }
+  function clearAlert() {
+    alertBox.innerHTML = '';
+  }
+
+  function setResultadosVacio(msg) {
+    tbodyResultados.innerHTML = `<tr><td colspan="4" class="text-secondary">${escapeHtml(msg)}</td></tr>`;
+    resCount.textContent = '0';
+  }
+
+  function updateRegistrarState() {
+    const hasSeleccion = selected.size > 0;
+    const hasActividad = !!idActividad.value;
+    btnRegistrar.disabled = !(hasSeleccion && hasActividad);
+  }
+
+  // ==========
+  // Render: Panel A (resultados)
+  // ==========
+  function renderResultados(rows) {
+    if (!rows || rows.length === 0) {
+      setResultadosVacio('Sin resultados.');
       return;
     }
 
-    $idActividad.innerHTML = `<option value="">Seleccione…</option>` + items.map(a =>
-      `<option value="${a.idActividad}">${escapeHtml(a.descripcion)}</option>`
+    resCount.textContent = String(rows.length);
+
+    tbodyResultados.innerHTML = rows.map(r => {
+      const alumno = `${r.apPaterno ?? ''} ${r.apMaterno ?? ''} ${r.nombre ?? ''}`.trim();
+      const already = selected.has(String(r.idAlumno));
+      return `
+        <tr>
+          <td>${escapeHtml(alumno)}</td>
+          <td><code>${escapeHtml(r.curp)}</code></td>
+          <td>${escapeHtml(r.matricula)}</td>
+          <td class="text-end">
+            <button class="btn btn-sm ${already ? 'btn-outline-secondary' : 'btn-guinda'}"
+                    type="button"
+                    data-add="${escapeHtml(r.idAlumno)}"
+                    ${already ? 'disabled' : ''}>
+              ${already ? 'Agregado' : 'Agregar'}
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    tbodyResultados.querySelectorAll('button[data-add]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-add');
+        const alumno = rows.find(x => String(x.idAlumno) === String(id));
+        if (alumno) addToSelection(alumno);
+      });
+    });
+  }
+
+  // ==========
+  // Render: Panel B (selección)
+  // ==========
+  function renderSeleccion() {
+    selCount.textContent = String(selected.size);
+
+    const rows = Array.from(selected.values());
+    if (rows.length === 0) {
+      tbodySeleccion.innerHTML = `<tr><td class="text-secondary" colspan="2">Sin selección.</td></tr>`;
+      updateRegistrarState();
+      return;
+    }
+
+    tbodySeleccion.innerHTML = rows.map(r => {
+      const alumno = `${r.apPaterno ?? ''} ${r.apMaterno ?? ''} ${r.nombre ?? ''}`.trim();
+      return `
+        <tr>
+          <td>${escapeHtml(alumno)}<br><span class="text-secondary small"><code>${escapeHtml(r.curp ?? '')}</code></span></td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-danger" type="button" data-del="${escapeHtml(r.idAlumno)}">Quitar</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    tbodySeleccion.querySelectorAll('button[data-del]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-del');
+        selected.delete(String(id));
+        renderSeleccion();
+        // refrescar estado de botones "Agregar" si hay resultados visibles
+        // (opcional: re-render de resultados)
+      });
+    });
+
+    updateRegistrarState();
+  }
+
+  function addToSelection(alumno) {
+    clearAlert();
+
+    const id = String(alumno.idAlumno);
+    if (selected.has(id)) {
+      showAlert('warning', 'El alumno ya está en la selección.');
+      return;
+    }
+
+    selected.set(id, alumno);
+    renderSeleccion();
+
+    // Opcional: marcar el botón de resultados como deshabilitado sin volver a consultar
+    const btn = tbodyResultados.querySelector(`button[data-add="${CSS.escape(id)}"]`);
+    if (btn) {
+      btn.classList.remove('btn-guinda');
+      btn.classList.add('btn-outline-secondary');
+      btn.textContent = 'Agregado';
+      btn.disabled = true;
+    }
+  }
+
+  // ==========
+  // API: buscar alumnos
+  // ==========
+  async function buscarAlumnos(term) {
+    hideAlertAlumno();
+    clearAlert();
+
+    term = (term || '').trim();
+
+    if (term.length < 3) {
+      setResultadosVacio('Escriba al menos 3 caracteres.');
+      return;
+    }
+
+    const url = `${BASE_URL}/api/search_alumnos.php?q=${encodeURIComponent(term)}`;
+
+    const res = await fetch(url, { credentials: 'same-origin' });
+    const text = await res.text();
+    let payload = null;
+    try { payload = JSON.parse(text); } catch { /* noop */ }
+
+    if (!res.ok || !payload || payload.ok !== true) {
+      console.error('API error:', res.status, text);
+      showAlertAlumno(payload?.error || `Error en API (HTTP ${res.status}).`);
+      setResultadosVacio('Realice una búsqueda.');
+      return;
+    }
+
+    renderResultados(payload.data);
+  }
+
+  // ==========
+  // API: cargar actividades por tipo
+  // ==========
+  async function cargarActividades(tipo) {
+    clearAlert();
+
+    idActividad.disabled = true;
+    idActividad.innerHTML = `<option value="">Cargando…</option>`;
+    updateRegistrarState();
+
+    if (!tipo) {
+      idActividad.innerHTML = `<option value="">Seleccione tipo primero…</option>`;
+      return;
+    }
+
+    const url = `${BASE_URL}/api/get_actividades.php?tipo=${encodeURIComponent(tipo)}`;
+    const res = await fetch(url, { credentials: 'same-origin' });
+    const text = await res.text();
+    let payload = null;
+    try { payload = JSON.parse(text); } catch { /* noop */ }
+
+    if (!res.ok || !payload || payload.ok !== true) {
+      console.error('API error:', res.status, text);
+      idActividad.innerHTML = `<option value="">Error al cargar actividades</option>`;
+      showAlert('danger', payload?.error || `Error al cargar actividades (HTTP ${res.status}).`);
+      return;
+    }
+
+    const rows = payload.data || [];
+    if (rows.length === 0) {
+      idActividad.innerHTML = `<option value="">Sin actividades para este tipo</option>`;
+      return;
+    }
+
+    idActividad.innerHTML = `<option value="">Seleccione…</option>` + rows.map(a =>
+      `<option value="${escapeHtml(a.idActividad)}">${escapeHtml(a.descripcion)}</option>`
     ).join('');
 
-    $idActividad.disabled = false;
-  } catch(e){
-    showAlert('danger', e.message || 'Error inesperado.');
-    $idActividad.innerHTML = `<option value="">Error al cargar.</option>`;
-  } finally{
-    updateRegistrarEnabled();
+    idActividad.disabled = false;
+    updateRegistrarState();
   }
-}
 
-async function registrar(){
-  clearAlert();
-  const idActividad = parseInt($idActividad.value, 10);
-  if (!idActividad){ showAlert('warning','Seleccione una actividad.'); return; }
-  if (state.seleccion.size === 0){ showAlert('warning','Seleccione al menos un alumno.'); return; }
+  // ==========
+  // API: registrar participaciones (lote)
+  // ==========
+  async function registrarParticipaciones() {
+    clearAlert();
 
-  const idAlumnos = Array.from(state.seleccion.keys());
+    if (selected.size === 0) {
+      showAlert('warning', 'No hay alumnos seleccionados.');
+      return;
+    }
+    if (!idActividad.value) {
+      showAlert('warning', 'Seleccione una actividad.');
+      return;
+    }
 
-  $btnRegistrar.disabled = true;
-  $btnRegistrar.textContent = 'Registrando…';
+    btnRegistrar.disabled = true;
 
-  try{
-    const resp = await fetch(`${BASE}/api/registrar_participaciones.php`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      credentials:'same-origin',
-      body: JSON.stringify({ idActividad, idAlumnos })
-    });
-    const data = await resp.json();
-    if (!data.ok) throw new Error(data.error || 'No se pudo registrar');
+    const payload = {
+      idActividad: idActividad.value,
+      alumnos: Array.from(selected.keys()) // idAlumno[]
+    };
 
-    const msg = `Registro completado. Insertados: ${data.inserted}. Omitidos por duplicado: ${data.skipped}.` +
-      (data.invalid?.length ? ` No válidos (otra escuela/no existen): ${data.invalid.length}.` : '');
-    showAlert('success', msg);
+    try {
+      const res = await fetch(`${BASE_URL}/api/registrar_participaciones.php`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-    state.seleccion.clear();
+      const text = await res.text();
+      let json = null;
+      try { json = JSON.parse(text); } catch { /* noop */ }
+
+      if (!res.ok || !json || json.ok !== true) {
+        console.error('API error:', res.status, text);
+        showAlert('danger', json?.error || `Error al registrar (HTTP ${res.status}).`);
+        updateRegistrarState();
+        return;
+      }
+
+      // Esperado: json = { ok:true, inserted:n, skipped:n, ... }
+      const ins = json.inserted ?? 0;
+      const skip = json.skipped ?? 0;
+
+      showAlert('success', `Registro completado. Insertados: ${ins}. Omitidos (duplicados): ${skip}.`);
+
+      // Limpia selección tras registrar
+      selected.clear();
+      renderSeleccion();
+      updateRegistrarState();
+
+      // Opcional: limpiar búsqueda
+      // inputQ.value = '';
+      // setResultadosVacio('Realice una búsqueda.');
+
+    } catch (e) {
+      console.error(e);
+      showAlert('danger', 'Error de red o servidor al registrar.');
+      updateRegistrarState();
+    }
+  }
+
+  // ==========
+  // Eventos UI
+  // ==========
+  // Debounce en input búsqueda
+  let t = null;
+  inputQ.addEventListener('input', () => {
+    clearTimeout(t);
+    t = setTimeout(() => buscarAlumnos(inputQ.value), 250);
+  });
+
+  inputQ.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      buscarAlumnos(inputQ.value);
+    }
+  });
+
+  btnBuscar.addEventListener('click', () => buscarAlumnos(inputQ.value));
+
+  btnLimpiar.addEventListener('click', (e) => {
+    e.preventDefault();
+    selected.clear();
     renderSeleccion();
-    renderResultados(state.resultados);
+    clearAlert();
+    updateRegistrarState();
+  });
 
-    $q.value = '';
-    $q.focus();
-  } catch(e){
-    showAlert('danger', e.message || 'Error inesperado.');
-  } finally{
-    $btnRegistrar.textContent = 'Registrar participación';
-    updateRegistrarEnabled();
-  }
-}
+  tipoActividad.addEventListener('change', () => cargarActividades(tipoActividad.value));
 
-// eventos
-$btnBuscar.addEventListener('click', buscar);
-$q.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter'){ ev.preventDefault(); buscar(); }});
-$btnLimpiar.addEventListener('click', ()=>{ state.seleccion.clear(); renderSeleccion(); renderResultados(state.resultados); $q.focus(); });
+  idActividad.addEventListener('change', () => updateRegistrarState());
 
-$tipoActividad.addEventListener('change', cargarActividades);
-$idActividad.addEventListener('change', updateRegistrarEnabled);
-$btnRegistrar.addEventListener('click', registrar);
+  btnRegistrar.addEventListener('click', (e) => {
+    e.preventDefault();
+    registrarParticipaciones();
+  });
 
-// init
-renderSeleccion();
-renderResultados([]);
+  // ==========
+  // Inicialización
+  // ==========
+  setResultadosVacio('Realice una búsqueda.');
+  renderSeleccion();
+  updateRegistrarState();
 </script>
 
 </body>
