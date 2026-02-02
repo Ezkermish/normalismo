@@ -25,7 +25,7 @@ $user = $_SESSION['user'];
     <a class="navbar-brand" href="<?= htmlspecialchars(url('/dashboard/index.php')) ?>" style="color: var(--c-wine); font-weight: 700;">Normalismo</a>
     <div class="ms-auto d-flex align-items-center gap-2">
       <span class="badge badge-wine">CCT: <?= htmlspecialchars((string)$user['escuela']) ?></span>
-      <span class="text-secondary small"><?= htmlspecialchars((string)$user['nomUsuario']) ?></span>
+      <span class="text-secondary small">Escuela Normal <?= htmlspecialchars((string)$user['nomUsuario']) ?></span>
       <a class="btn btn-outline-secondary btn-sm" href="<?= htmlspecialchars(url('/auth/logout.php')) ?>">Salir</a>
     </div>
   </div>
@@ -43,7 +43,7 @@ $user = $_SESSION['user'];
 
           <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones.php')) ?>">
-              Registrar participantes (lote)
+              Registrar participantes
             </a>
           </div>
 
@@ -54,7 +54,7 @@ $user = $_SESSION['user'];
     <div class="col-lg-4">
       <div class="card">
         <div class="card-body">
-          <div class="text-secondary small">Sesión</div>
+          <div class="text-secondary small">Sesión de la Escuela Normal</div>
           <div class="fw-semibold"><?= htmlspecialchars((string)$user['nomUsuario']) ?></div>
           <div class="text-secondary small">Escuela (CCT)</div>
           <div class="fw-semibold"><?= htmlspecialchars((string)$user['escuela']) ?></div>

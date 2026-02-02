@@ -56,12 +56,14 @@ try {
     "SELECT idActividad FROM actividades WHERE idActividad = ? LIMIT 1"
   );
   $stmtAct->execute([(int)$idActividad]);
+  $act = $stmtAct->fetch();
+  $stmtAct->closeCursor();
 
-  if (!$stmtAct->fetch()) {
+  if (!$act) {
     out(400, ['ok' => false, 'error' => 'La actividad no existe.']);
   }
 
-  // Validar alumnos por escuela (sin IN dinámico complejo)
+  // Validar alumnos por escuela
   $stmtAl = $pdo->prepare(
     "SELECT idAlumno FROM alumnos WHERE idAlumno = ? AND cct = ? LIMIT 1"
   );
@@ -69,7 +71,10 @@ try {
   $validos = [];
   foreach ($ids as $idAl) {
     $stmtAl->execute([$idAl, $cctUsuario]);
-    if ($stmtAl->fetchColumn()) {
+    $ok = $stmtAl->fetchColumn();
+    $stmtAl->closeCursor();
+
+    if ($ok !== false) {
       $validos[] = $idAl;
     }
   }
@@ -101,7 +106,10 @@ try {
 
   foreach ($validos as $idAl) {
     $stmtDup->execute([$idAl, (int)$idActividad]);
-    if ($stmtDup->fetch()) {
+    $exists = $stmtDup->fetchColumn();
+    $stmtDup->closeCursor();
+
+    if ($exists !== false) {
       $skipped++;
       continue;
     }
@@ -112,17 +120,9 @@ try {
 
   $pdo->commit();
 
-  out(200, [
-    'ok' => true,
-    'inserted' => $inserted,
-    'skipped' => $skipped
-  ]);
+  out(200, ['ok' => true, 'inserted' => $inserted, 'skipped' => $skipped]);
 
 } catch (Throwable $e) {
   if ($pdo->inTransaction()) $pdo->rollBack();
-  out(500, [
-    'ok' => false,
-    'error' => 'Error al registrar.',
-    'debug' => $e->getMessage() // puedes quitarlo luego
-  ]);
+  out(500, ['ok' => false, 'error' => 'Error al registrar.', 'debug' => $e->getMessage()]);
 }
