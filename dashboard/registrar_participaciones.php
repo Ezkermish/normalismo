@@ -146,9 +146,9 @@ if (empty($_SESSION['user'])) {
             <label class="form-label">Tipo de actividad</label>
             <select id="tipoActividad" class="form-select">
               <option value="">Seleccione…</option>
-              <option value="ACADEMICAS">Académicas</option>
-              <option value="ARTISTICO-CULTURALES">Artístico-culturales</option>
-              <option value="DEPORTIVAS">Deportivas</option>
+              <option value="Académica">Académicas</option>
+              <option value="Artístico-Culturales">Artístico-culturales</option>
+              <option value="Deportivas">Deportivas</option>
             </select>
           </div>
 
