@@ -43,7 +43,10 @@ $user = $_SESSION['user'];
 
           <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones.php')) ?>">
-              Registrar participantes
+              Registrar Alumnos
+            </a>
+            <a class="btn btn-outline-secondary btn-sm" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones_docentes.php')) ?>">
+              Registrar Docentes
             </a>
           </div>
 

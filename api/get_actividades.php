@@ -15,7 +15,6 @@ if (empty($_SESSION['user'])) {
 
 $tipo = trim((string)($_GET['tipo'] ?? ''));
 
-// (Cambio mínimo opcional: 20 -> 30; si quieres dejarlo en 20, puedes)
 if ($tipo === '' || mb_strlen($tipo) > 30) {
   http_response_code(400);
   echo json_encode(['ok' => false, 'error' => 'Tipo inválido.'], JSON_UNESCAPED_UNICODE);
@@ -41,7 +40,7 @@ try {
     ];
   }
 
-  // Cambio clave: items -> data (para que el JS encuentre el arreglo)
+  // Cambio: items -> data (para que el JS encuentre el arreglo)
   echo json_encode(['ok' => true, 'data' => $data], JSON_UNESCAPED_UNICODE);
 
 } catch (Throwable $e) {

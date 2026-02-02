@@ -18,7 +18,6 @@ if ($nomUsuario === '' || $passwd === '') {
   fail('Debe capturar usuario y contraseña.');
 }
 
-// Defensa básica ante inputs anómalos (sin bloquear caracteres comunes)
 if (mb_strlen($nomUsuario) > 50) {
   fail('Usuario inválido.');
 }
@@ -40,8 +39,6 @@ try {
     fail('Credenciales inválidas.');
   }
 
-  // Validación CONTRA TEXTO PLANO (según lo solicitado)
-  // Para reducir ataques por timing, usa hash_equals
   if (!hash_equals((string)$user['passwd'], $passwd)) {
     fail('Credenciales inválidas.');
   }

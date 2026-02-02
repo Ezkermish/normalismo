@@ -217,7 +217,7 @@ if (empty($_SESSION['user'])) {
   const alertBox = document.getElementById('alertBox');
 
   // ==========
-  // Estado (carrito)
+  // Estado
   // ==========
   const selected = new Map(); // key: idAlumno (string) -> alumno
 
@@ -337,8 +337,7 @@ if (empty($_SESSION['user'])) {
         const id = btn.getAttribute('data-del');
         selected.delete(String(id));
         renderSeleccion();
-        // refrescar estado de botones "Agregar" si hay resultados visibles
-        // (opcional: re-render de resultados)
+
       });
     });
 
@@ -357,7 +356,6 @@ if (empty($_SESSION['user'])) {
     selected.set(id, alumno);
     renderSeleccion();
 
-    // Opcional: marcar el botón de resultados como deshabilitado sin volver a consultar
     const btn = tbodyResultados.querySelector(`button[data-add="${CSS.escape(id)}"]`);
     if (btn) {
       btn.classList.remove('btn-guinda');
@@ -492,7 +490,7 @@ if (empty($_SESSION['user'])) {
       renderSeleccion();
       updateRegistrarState();
 
-      // Opcional: limpiar búsqueda
+      // limpiar búsqueda no resultó
       // inputQ.value = '';
       // setResultadosVacio('Realice una búsqueda.');
 

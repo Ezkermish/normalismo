@@ -23,10 +23,6 @@ if ($q === '' || mb_strlen($q) < 3) {
 
 $escuela = (string)$_SESSION['user']['escuela'];
 
-/**
- * AJUSTA los nombres de columnas si tu tabla alumnos usa otros:
- * - curp, matricula, nombre, apPaterno, apMaterno, cct
- */
 $sql = "
   SELECT
     idAlumno,
