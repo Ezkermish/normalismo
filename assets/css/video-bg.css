@@ -1,0 +1,77 @@
+/* ===============================
+   Video de fondo – Dashboard
+   =============================== */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+.login-info {
+  padding: 2rem;
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.login-logo {
+  display: block;
+  max-width: 269px;
+  width: 100%;
+  height: auto;
+}
+
+.text-wine {
+  color: var(--c-wine);
+}
+
+@media (max-width: 992px) {
+  .login-info {
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+#bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+
+  filter: brightness(0.85) contrast(1.1);
+}
+
+#bg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: -1;
+}
+
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-radius: 0.75rem;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}

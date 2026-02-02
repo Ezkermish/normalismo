@@ -19,22 +19,39 @@ unset($_SESSION['login_error']);
   <title>Acceso | Normalismo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="<?= htmlspecialchars(url('/assets/css/theme.css')) ?>" rel="stylesheet">
+  <link rel="stylesheet" href="<?= htmlspecialchars(url('/assets/css/video-bg.css')) ?>">
 </head>
 <body>
+   <video id="bg-video" autoplay muted loop playsinline preload="auto">
+    <source src="<?= htmlspecialchars(url('/assets/video/dashboard-bg.mp4')) ?>" type="video/mp4">
+   </video>
+  <div id="bg-overlay"></div>
   <div class="container d-flex align-items-center justify-content-center" style="min-height:100vh;">
     <div class="row w-100" style="max-width: 980px;">
       <div class="col-lg-6 mb-3">
         <div class="p-4">
-          <span class="badge badge-wine mb-3">ENPEM • Normalismo</span>
-          <h1 class="h3 mb-2" style="color: var(--c-wine);">Ingreso al sistema</h1>
-          <p class="text-secondary mb-4">
-            Acceda con sus credenciales para registrar y dar seguimiento a participaciones por fase.
-          </p>
-          <ul class="text-secondary small">
-            <li>Control por escuela (CCT)</li>
-            <li>Registro de actividades y avance institucional / regional / estatal</li>
-            <li>Dashboard por escuela y estatus</li>
-          </ul>
+          <div class="login-info">
+            <img
+              src="<?= htmlspecialchars(url('/assets/img/logo-dgen_TI.png')) ?>"
+              alt="ENPEM – Escuelas Normales Públicas del Estado de México"
+              class="login-logo mb-3">
+
+            <span class="badge badge-wine mb-3">ENPEM • Normalismo</span>
+
+            <h1 class="h3 mb-2 text-wine">Ingreso al sistema</h1>
+
+            <p class="text-secondary mb-4">
+              Acceda con sus credenciales para registrar y dar seguimiento a participaciones por fase.
+            </p>
+
+            <ul class="text-secondary small">
+              <li>Control por escuela (CCT)</li>
+              <li>Registro de actividades y avance institucional / regional / estatal</li>
+              <li>Dashboard por escuela y estatus</li>
+            </ul>
+
+          </div>
+
         </div>
       </div>
 

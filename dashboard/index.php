@@ -19,8 +19,10 @@ $user = $_SESSION['user'];
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="<?= htmlspecialchars(url('/assets/css/theme.css')) ?>" rel="stylesheet">
 </head>
+
+</head>
 <body>
-<nav class="navbar navbar-expand-lg bg-white border-bottom">
+ <nav class="navbar navbar-expand-lg bg-white border-bottom">
   <div class="container">
     <a class="navbar-brand" href="<?= htmlspecialchars(url('/dashboard/index.php')) ?>" style="color: var(--c-wine); font-weight: 700;">Normalismo</a>
     <div class="ms-auto d-flex align-items-center gap-2">
@@ -45,11 +47,10 @@ $user = $_SESSION['user'];
             <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones.php')) ?>">
               Registrar Alumnos
             </a>
-            <a class="btn btn-outline-secondary btn-sm" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones_docentes.php')) ?>">
+            <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones_docentes.php')) ?>">
               Registrar Docentes
             </a>
           </div>
-
         </div>
       </div>
     </div>
