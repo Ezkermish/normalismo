@@ -24,7 +24,12 @@ $user = $_SESSION['user'];
 <body>
  <nav class="navbar navbar-expand-lg bg-white border-bottom">
   <div class="container">
-    <a class="navbar-brand" href="<?= htmlspecialchars(url('/dashboard/index.php')) ?>" style="color: var(--c-wine); font-weight: 700;">Normalismo</a>
+    <a class="navbar-brand d-flex align-items-center"
+      href="<?= htmlspecialchars(url('/dashboard/index.php')) ?>">
+      <img src="<?= htmlspecialchars(url('/assets/img/logo-normalismo.png')) ?>"
+       alt="Normalismo"
+       style="height:40px; width:auto;">
+    </a>
     <div class="ms-auto d-flex align-items-center gap-2">
       <span class="badge badge-wine">CCT: <?= htmlspecialchars((string)$user['escuela']) ?></span>
       <span class="text-secondary small">Escuela Normal <?= htmlspecialchars((string)$user['nomUsuario']) ?></span>

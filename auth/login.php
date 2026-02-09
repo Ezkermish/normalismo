@@ -32,7 +32,7 @@ unset($_SESSION['login_error']);
         <div class="p-4">
           <div class="login-info-box">
             <img
-              src="<?= htmlspecialchars(url('/assets/img/logo-dgen_TI.png')) ?>"
+              src="<?= htmlspecialchars(url('/assets/img/logo-normalismo.png')) ?>"
               alt="ENPEM – Escuelas Normales Públicas del Estado de México"
               class="login-logo mb-3">
               <br>
