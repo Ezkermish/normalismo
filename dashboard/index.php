@@ -55,6 +55,9 @@ $user = $_SESSION['user'];
             <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones_docentes.php')) ?>">
               Registrar Docentes
             </a>
+            <a class="btn btn-outline-secondary btn-sm" href="<?= htmlspecialchars(url('/dashboard/avance_fases.php')) ?>">
+              Avance de fases
+            </a>
           </div>
         </div>
       </div>
