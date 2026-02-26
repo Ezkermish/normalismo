@@ -8,6 +8,13 @@ if (empty($_SESSION['user'])) {
   header('Location: ' . url('/auth/login.php'));
   exit;
 }
+
+if (!REGISTRO_HABILITADO) {
+  http_response_code(403);
+  echo json_encode(['ok'=>false,'error'=>'El registro está cerrado.']);
+  exit;
+}
+
 ?>
 <!doctype html>
 <html lang="es">

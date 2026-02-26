@@ -6,6 +6,10 @@ session_start();
 
 require_once __DIR__ . '/../config/db.php';
 
+if (!AVANCE_FASES_HABILITADO) {
+  out(403, ['ok'=>false,'error'=>'El avance de fases está deshabilitado.']);
+}
+
 function out(int $code, array $payload): void {
   http_response_code($code);
   echo json_encode($payload, JSON_UNESCAPED_UNICODE);

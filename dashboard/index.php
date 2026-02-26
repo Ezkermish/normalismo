@@ -48,16 +48,62 @@ $user = $_SESSION['user'];
             Seleccione una opción para iniciar la captura y seguimiento.
           </p>
 
+          <?php if (!REGISTRO_HABILITADO || !AVANCE_FASES_HABILITADO): ?>
+            <div class="mb-3">
+              <span class="badge badge-wine px-3 py-2" style="background:#9f2241;">
+                ⚠ 
+                <?php if (!REGISTRO_HABILITADO): ?>
+                  Registro cerrado
+                <?php endif; ?>
+
+                <?php if (!REGISTRO_HABILITADO && !AVANCE_FASES_HABILITADO): ?>
+                  ·
+                <?php endif; ?>
+
+                <?php if (!AVANCE_FASES_HABILITADO): ?>
+                  Avance de fases deshabilitado
+                <?php endif; ?>
+              </span>
+            </div>
+          <?php endif; ?>
+
           <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones.php')) ?>">
-              Registrar Alumnos
-            </a>
-            <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones_docentes.php')) ?>">
-              Registrar Docentes
-            </a>
-            <a class="btn btn-outline-secondary btn-sm" href="<?= htmlspecialchars(url('/dashboard/avance_fases.php')) ?>">
-              Avance de fases
-            </a>
+
+            <?php if (REGISTRO_HABILITADO): ?>
+              <a class="btn btn-guinda"
+                href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones.php')) ?>">
+                Registrar Alumnos
+              </a>
+            <?php else: ?>
+              <button class="btn btn-guinda" disabled>
+                Registrar Alumnos
+              </button>
+            <?php endif; ?>
+
+
+            <?php if (REGISTRO_HABILITADO): ?>
+              <a class="btn btn-guinda"
+                href="<?= htmlspecialchars(url('/dashboard/registrar_participaciones_docentes.php')) ?>">
+                Registrar Docentes
+              </a>
+            <?php else: ?>
+              <button class="btn btn-guinda" disabled>
+                Registrar Docentes
+              </button>
+            <?php endif; ?>
+
+
+            <?php if (AVANCE_FASES_HABILITADO): ?>
+              <a class="btn btn-guinda"
+                href="<?= htmlspecialchars(url('/dashboard/avance_fases.php')) ?>">
+                Avance de fases
+              </a>
+            <?php else: ?>
+              <button class="btn btn-guinda" disabled>
+                Avance de fases
+              </button>
+            <?php endif; ?>
+
           </div>
         </div>
       </div>
