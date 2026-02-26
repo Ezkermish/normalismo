@@ -65,23 +65,24 @@ try {
   $selectCols = [];
   $groupCols  = [];
 
-  if (str_contains($group, 'escuela')) {
-    $selectCols[] = "t.cct";
-    $groupCols[]  = "t.cct";
-  }
-  if (str_contains($group, 'fase')) {
+  if (strpos($group, 'escuela') !== false) {
+  $selectCols[] = "t.cct";
+  $groupCols[]  = "t.cct";
+    }
+
+    if (strpos($group, 'fase') !== false) {
     $selectCols[] = "t.fase";
     $groupCols[]  = "t.fase";
-  }
-  if (str_contains($group, 'actividad')) {
+    }
+
+    if (strpos($group, 'actividad') !== false) {
     $selectCols[] = "t.idActividad";
     $selectCols[] = "a.descripcion AS actividad";
     $selectCols[] = "a.tipoActividad";
     $groupCols[]  = "t.idActividad";
     $groupCols[]  = "a.descripcion";
     $groupCols[]  = "a.tipoActividad";
-  }
-
+    }
   if (!$selectCols) {
     $selectCols = ["t.cct", "t.fase", "t.idActividad", "a.descripcion AS actividad", "a.tipoActividad"];
     $groupCols  = ["t.cct", "t.fase", "t.idActividad", "a.descripcion", "a.tipoActividad"];
