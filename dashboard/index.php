@@ -104,8 +104,12 @@ $user = $_SESSION['user'];
               </button>
             <?php endif; ?>
 
-            <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/conteo_resumen.php')) ?>">
+            <!-- <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/conteo_resumen.php')) ?>">
               Dashboard de conteos
+            </a> -->
+
+            <a class="btn btn-guinda" href="<?= htmlspecialchars(url('/dashboard/listado_participantes.php')) ?>">
+              Listado por actividad (ACTIVO)
             </a>
 
           </div>

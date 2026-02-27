@@ -95,10 +95,9 @@ $cctSesion = (string)($_SESSION['user']['escuela'] ?? '');
           <label class="form-label">Tipo de actividad</label>
           <select id="tipoActividad" class="form-select">
             <option value="">Todas</option>
-            <!-- Deben coincidir con tu BD -->
             <option value="Académica">Académicas</option>
-            <option value="Artístico-Cultu">Artístico-culturales</option>
-            <option value="Deportivos">Deportivas</option>
+            <option value="Artístico-Culturales">Artístico-culturales</option>
+            <option value="Deportivas">Deportivas</option>
           </select>
         </div>
 

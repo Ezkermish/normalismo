@@ -36,8 +36,8 @@ $idActividad = trim((string)($_GET['idActividad'] ?? ''));
 $estatus = strtoupper(trim((string)($_GET['estatus'] ?? '')));
 $tipoParticipante = strtoupper(trim((string)($_GET['tipoParticipante'] ?? '')));
 
-// Restringir a la escuela del usuario, descomenta:
-// $cct = (string)($_SESSION['user']['escuela'] ?? '');
+// Restringir a la escuela del usuario, descomentar:
+ $cct = (string)($_SESSION['user']['escuela'] ?? '');
 
 $validGroups = [
   'escuela',
