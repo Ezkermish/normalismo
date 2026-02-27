@@ -6,10 +6,6 @@ session_start();
 
 require_once __DIR__ . '/../config/db.php';
 
-if (!AVANCE_FASES_HABILITADO) {
-  out(403, ['ok'=>false,'error'=>'El avance de fases está deshabilitado.']);
-}
-
 function out(int $code, array $payload): void {
   http_response_code($code);
   echo json_encode($payload, JSON_UNESCAPED_UNICODE);
@@ -22,7 +18,6 @@ if (empty($_SESSION['user'])) {
 
 $raw = file_get_contents('php://input');
 $body = json_decode($raw, true);
-
 if (!is_array($body)) {
   out(400, ['ok' => false, 'error' => 'JSON inválido.']);
 }
@@ -42,34 +37,30 @@ if (!in_array($accion, $validAcc, true)) {
 
 $cct = (string)($_SESSION['user']['escuela'] ?? '');
 
-function nextPhase(string $fase): string {
-  return match($fase) {
-    'INSTITUCIONAL' => 'REGIONAL',
-    'REGIONAL' => 'ESTATAL',
-    default => 'ESTATAL'
-  };
+function nextPhasePhp7(string $fase): string {
+  if ($fase === 'INSTITUCIONAL') return 'REGIONAL';
+  if ($fase === 'REGIONAL') return 'ESTATAL';
+  return 'ESTATAL';
 }
 
 try {
-  // 1) Obtener participación y validar pertenencia a la escuela (por join)
+  // 1) Traer participación base
   $stmt = $pdo->prepare("
-    SELECT
-      p.idParticipacion, p.tipoParticipante, p.idAlumno, p.idDocente,
-      p.idActividad, p.fase, p.estatus
-    FROM participaciones p
-    WHERE p.idParticipacion = ?
+    SELECT idParticipacion, tipoParticipante, idAlumno, idDocente, idActividad, fase, estatus
+    FROM participaciones
+    WHERE idParticipacion = ?
     LIMIT 1
   ");
   $stmt->execute([(int)$idParticipacion]);
-  $p = $stmt->fetch();
+  $p = $stmt->fetch(PDO::FETCH_ASSOC);
   $stmt->closeCursor();
 
   if (!$p) {
     out(404, ['ok' => false, 'error' => 'Participación no encontrada.']);
   }
 
-  // Validar que pertenezca a la escuela del usuario
-  if ($p['tipoParticipante'] === 'ALUMNO') {
+  // 2) Validar pertenencia a la escuela (CCT de sesión)
+  if ((string)$p['tipoParticipante'] === 'ALUMNO') {
     $stmtOwn = $pdo->prepare("SELECT 1 FROM alumnos WHERE idAlumno = ? AND cct = ? LIMIT 1");
     $stmtOwn->execute([(string)$p['idAlumno'], $cct]);
     $ok = $stmtOwn->fetchColumn();
@@ -85,17 +76,17 @@ try {
 
   $pdo->beginTransaction();
 
-  // 2) Aplicar acción
+  // 3) Aplicar acción
   if ($accion === 'DESCARTAR') {
     $stmtUp = $pdo->prepare("UPDATE participaciones SET estatus='DESCARTADO', comentario=? WHERE idParticipacion=?");
-    $stmtUp->execute([$comentario ?: null, (int)$idParticipacion]);
+    $stmtUp->execute([$comentario !== '' ? $comentario : null, (int)$idParticipacion]);
     $pdo->commit();
     out(200, ['ok' => true, 'message' => 'Participación descartada.']);
   }
 
   if ($accion === 'REACTIVAR') {
     $stmtUp = $pdo->prepare("UPDATE participaciones SET estatus='ACTIVO', comentario=? WHERE idParticipacion=?");
-    $stmtUp->execute([$comentario ?: null, (int)$idParticipacion]);
+    $stmtUp->execute([$comentario !== '' ? $comentario : null, (int)$idParticipacion]);
     $pdo->commit();
     out(200, ['ok' => true, 'message' => 'Participación reactivada.']);
   }
@@ -107,10 +98,10 @@ try {
     out(400, ['ok' => false, 'error' => 'No es posible avanzar: ya está en ESTATAL.']);
   }
 
-  $faseNueva = nextPhase($faseActual);
+  $faseNueva = nextPhasePhp7($faseActual);
 
-  // (Opcional) prevenir “duplicado” por si existieran registros históricos (misma persona/actividad) en la fase destino
-  if ($p['tipoParticipante'] === 'ALUMNO') {
+  // (Opcional recomendado) prevenir duplicado en la fase destino
+  if ((string)$p['tipoParticipante'] === 'ALUMNO') {
     $stmtDup = $pdo->prepare("
       SELECT 1 FROM participaciones
       WHERE tipoParticipante='ALUMNO'
@@ -146,17 +137,18 @@ try {
     }
   }
 
+  // Actualizar fase
   $stmtUp = $pdo->prepare("
     UPDATE participaciones
     SET fase=?, estatus='ACTIVO', comentario=?
     WHERE idParticipacion=?
   ");
-  $stmtUp->execute([$faseNueva, $comentario ?: null, (int)$idParticipacion]);
+  $stmtUp->execute([$faseNueva, $comentario !== '' ? $comentario : null, (int)$idParticipacion]);
 
   $pdo->commit();
   out(200, ['ok' => true, 'message' => "Avanzó a fase {$faseNueva}."]);
 
 } catch (Throwable $e) {
   if ($pdo->inTransaction()) $pdo->rollBack();
-  out(500, ['ok' => false, 'error' => 'Error al actualizar participación.']);
+  out(500, ['ok' => false, 'error' => 'Error al actualizar participación.', 'debug' => $e->getMessage()]);
 }
