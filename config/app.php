@@ -5,7 +5,7 @@ declare(strict_types=1);
 define('BASE_URL', '/normalismo');
 
 // ==========================================
-// CONTROL GLOBAL DEL SISTEMA
+// Control de 
 // ==========================================
 
 define('REGISTRO_HABILITADO', false); 
