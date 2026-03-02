@@ -12,7 +12,7 @@ define('REGISTRO_HABILITADO', false);
 // true  = permite registrar
 // false = bloquea registro de alumnos y docentes
 
-define('AVANCE_FASES_HABILITADO', true); 
+define('AVANCE_FASES_HABILITADO', false); 
 // true: control independiente de avance de fases
 // false: bloquea el avance de fase
 
