@@ -59,7 +59,7 @@ try {
     out(404, ['ok' => false, 'error' => 'Participación no encontrada.']);
   }
 
-  // 2) Valido pertenencia a la escuela (CCT de sesión)
+  // 2) Validar pertenencia a la escuela (CCT de sesión)
   if ((string)$p['tipoParticipante'] === 'ALUMNO') {
     $stmtOwn = $pdo->prepare("SELECT 1 FROM alumnos WHERE idAlumno = ? AND cct = ? LIMIT 1");
     $stmtOwn->execute([(string)$p['idAlumno'], $cct]);
@@ -76,7 +76,7 @@ try {
 
   $pdo->beginTransaction();
 
-  // 3) Aplico acción
+  // 3) Aplicar acción
   if ($accion === 'DESCARTAR') {
     $stmtUp = $pdo->prepare("UPDATE participaciones SET estatus='DESCARTADO', comentario=? WHERE idParticipacion=?");
     $stmtUp->execute([$comentario !== '' ? $comentario : null, (int)$idParticipacion]);
@@ -100,7 +100,7 @@ try {
 
   $faseNueva = nextPhasePhp7($faseActual);
 
-  // Prevengo duplicado en la fase destino
+  // (Opcional recomendado) prevenir duplicado en la fase destino
   if ((string)$p['tipoParticipante'] === 'ALUMNO') {
     $stmtDup = $pdo->prepare("
       SELECT 1 FROM participaciones
@@ -137,7 +137,7 @@ try {
     }
   }
 
-  // Actualizo la fase
+  // Actualizar fase
   $stmtUp = $pdo->prepare("
     UPDATE participaciones
     SET fase=?, estatus='ACTIVO', comentario=?
