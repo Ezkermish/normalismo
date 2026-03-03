@@ -5,16 +5,26 @@ declare(strict_types=1);
 define('BASE_URL', '/normalismo');
 
 // ==========================================
-// Control de 
+// Control de Registro y avance de fases
 // ==========================================
 
 define('REGISTRO_HABILITADO', false); 
 // true  = permite registrar
 // false = bloquea registro de alumnos y docentes
 
-define('AVANCE_FASES_HABILITADO', false); 
+define('AVANCE_FASES_HABILITADO', true); 
 // true: control independiente de avance de fases
 // false: bloquea el avance de fase
+
+// ==========================================
+// MENSAJE GLOBAL DEL SISTEMA
+// ==========================================
+
+define('MENSAJE_GLOBAL_ACTIVO', true);
+
+define('MENSAJE_GLOBAL_TEXTO', 
+  'Aviso importante: El avance de Fase de INSTITUCIONAL a REGIONAL se cerrará el 4 de marzo de 2026 a las 17:00 horas.'
+);
 
 function url(string $path): string {
   $path = '/' . ltrim($path, '/');

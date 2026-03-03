@@ -66,6 +66,18 @@ $user = $_SESSION['user'];
               </span>
             </div>
           <?php endif; ?>
+            
+          <?php if (defined('MENSAJE_GLOBAL_ACTIVO') && MENSAJE_GLOBAL_ACTIVO): ?>
+            <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert"
+                style="background:#fff3cd; border-left:6px solid #bc955b;">
+              <div class="fw-semibold">
+                ⚠ Aviso del sistema:
+              </div>
+              <div>
+                <?= htmlspecialchars(MENSAJE_GLOBAL_TEXTO) ?>
+              </div>
+            </div>
+          <?php endif; ?>
 
           <div class="d-flex flex-wrap gap-2">
 
