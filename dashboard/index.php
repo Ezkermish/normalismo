@@ -71,7 +71,7 @@ $user = $_SESSION['user'];
             <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert"
                 style="background:#fff3cd; border-left:6px solid #bc955b;">
               <div class="fw-semibold">
-                ⚠ Aviso del sistema:
+                ⚠ Avance de fases:
               </div>
               <div>
                 <?= htmlspecialchars(MENSAJE_GLOBAL_TEXTO) ?>
