@@ -20,7 +20,7 @@ define('AVANCE_FASES_HABILITADO', true);
 // MENSAJE GLOBAL DEL SISTEMA
 // ==========================================
 
-define('MENSAJE_GLOBAL_ACTIVO', true);
+define('MENSAJE_GLOBAL_ACTIVO', false);
 
 define('MENSAJE_GLOBAL_TEXTO', 
   'Aviso importante: El avance de Fase de INSTITUCIONAL a REGIONAL se cerrará el 4 de marzo de 2026 a las 17:00 horas.'
