@@ -8,7 +8,7 @@ define('BASE_URL', '/normalismo');
 // Control de Registro y avance de fases
 // ==========================================
 
-define('REGISTRO_HABILITADO', false); 
+define('REGISTRO_HABILITADO', true); 
 // true  = permite registrar
 // false = bloquea registro de alumnos y docentes
 

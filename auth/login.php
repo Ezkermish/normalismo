@@ -4,6 +4,18 @@ session_start();
 require_once __DIR__ . '/../config/app.php';
 
 if (!empty($_SESSION['user'])) {
+  $rol = strtoupper(trim((string)($_SESSION['user']['rol'] ?? '')));
+
+  if ($rol === 'REGION') {
+    header('Location: ' . url('/dashboard/region/index.php'));
+    exit;
+  }
+
+  if ($rol === 'ADMIN' || $rol === 'ESCUELA') {
+    header('Location: ' . url('/dashboard/index.php'));
+    exit;
+  }
+
   header('Location: ' . url('/dashboard/index.php'));
   exit;
 }
