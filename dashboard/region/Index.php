@@ -359,7 +359,6 @@ if ($region === '') {
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
@@ -422,7 +421,7 @@ async function fetchJson(action, extra = {}) {
 
     if (!resp.ok) {
         const texto = await resp.text();
-        throw new Error('Error HTTP ' + resp.status + ': ' + texto);
+        throw new Error('HTTP ' + resp.status + ': ' + texto);
     }
 
     const texto = await resp.text();
@@ -430,7 +429,7 @@ async function fetchJson(action, extra = {}) {
     try {
         return JSON.parse(texto);
     } catch (e) {
-        throw new Error('La respuesta no es JSON válido: ' + texto);
+        throw new Error('Respuesta no válida de data.php: ' + texto);
     }
 }
 
@@ -525,7 +524,7 @@ async function recargarTodo() {
         renderAllTables();
     } catch (err) {
         console.error(err);
-        alert('Ocurrió un error al cargar la información regional. Revisa data.php o el error_log.');
+        alert('Ocurrió un error al cargar la información regional.\n\n' + err.message);
     }
 }
 
@@ -572,11 +571,21 @@ function exportPdfClient() {
 }
 
 $(async function() {
-    await cargarActividades();
-    await recargarTodo();
+    try {
+        await cargarActividades();
+        await recargarTodo();
+    } catch (err) {
+        console.error(err);
+        alert('Error inicial del panel regional:\n\n' + err.message);
+    }
 
     $('#filtroTipoActividad').on('change', async function() {
-        await cargarActividades();
+        try {
+            await cargarActividades();
+        } catch (err) {
+            console.error(err);
+            alert(err.message);
+        }
     });
 
     $('#btnAplicar').on('click', async function() {

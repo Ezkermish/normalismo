@@ -10,6 +10,7 @@ require_once __DIR__ . '/../../config/app.php';
 require_once __DIR__ . '/../../config/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
+
 if (!isset($_SESSION['user'])) {
     http_response_code(401);
     echo json_encode(['error' => 'No autenticado']);
@@ -37,8 +38,6 @@ $fase          = trim((string)($_GET['fase'] ?? ''));
 $tipoActividad = trim((string)($_GET['tipoActividad'] ?? ''));
 $idActividad   = trim((string)($_GET['idActividad'] ?? ''));
 $escuelaFiltro = trim((string)($_GET['escuela'] ?? ''));
-
-//$pdo = db();
 
 function jsonResponse($data): void {
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
@@ -456,7 +455,7 @@ try {
 } catch (Throwable $e) {
     http_response_code(500);
     jsonResponse([
-        'error' => 'Error interno',
+        'error' => 'Error interno en data.php',
         'detalle' => $e->getMessage()
     ]);
 }
