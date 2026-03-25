@@ -101,7 +101,15 @@ if ($region === '') {
 <body>
 <nav class="navbar navbar-expand-lg bg-white border-bottom mb-4">
     <div class="container-fluid px-4">
-        <span class="navbar-brand">Panel Regional</span>
+        <div class="d-flex align-items-center gap-3">
+            <img
+                src="<?= htmlspecialchars(url('/assets/img/logo-normalismo.png')) ?>"
+                alt="Logo Normalismo"
+                style="height: 52px; width: auto;"
+            >
+            <span class="navbar-brand mb-0">Panel Regional</span>
+        </div>
+
         <div class="ms-auto d-flex align-items-center gap-2">
             <span class="badge text-bg-secondary">Región: <?= htmlspecialchars($region) ?></span>
             <span class="text-secondary small">Usuario: <?= htmlspecialchars((string)($user['nomUsuario'] ?? '')) ?></span>
@@ -575,7 +583,13 @@ function renderCharts() {
         type: 'bar',
         data: {
             labels: state.resumenFase.map(x => x.fase),
-            datasets: [{ label: 'Participaciones', data: state.resumenFase.map(x => Number(x.total || 0)) }]
+            datasets: [{
+                label: 'Participaciones',
+                data: state.resumenFase.map(x => Number(x.total || 0)),
+                backgroundColor: '#bc955b',
+                borderColor: '#bc955b',
+                borderWidth: 1
+            }]
         },
         options: { responsive: true, maintainAspectRatio: false }
     });
@@ -586,7 +600,13 @@ function renderCharts() {
         type: 'bar',
         data: {
             labels: top10.map(x => x.descripcion),
-            datasets: [{ label: 'Participaciones', data: top10.map(x => Number(x.total || 0)) }]
+            datasets: [{
+                label: 'Participaciones',
+                data: state.resumenFase.map(x => Number(x.total || 0)),
+                backgroundColor: '#bc955b',
+                borderColor: '#bc955b',
+                borderWidth: 1
+            }]
         },
         options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' }
     });
