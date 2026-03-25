@@ -39,74 +39,51 @@ $tipoActividad = trim((string)($_GET['tipoActividad'] ?? ''));
 $idActividad   = trim((string)($_GET['idActividad'] ?? ''));
 $escuelaFiltro = trim((string)($_GET['escuela'] ?? ''));
 
-function jsonResponse($data): void {
+function jsonResponse($data): void
+{
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-function filtrosAlumno(string $region, string $fase, string $tipoActividad, string $idActividad, string $escuelaFiltro): array {
-    $where = [
-        "p.tipoParticipante = 'ALUMNO'",
-        "p.estatus = 'ACTIVO'",
-        "e.region = :region"
-    ];
-    $params = [':region' => $region];
+function buildFilters(
+    string $prefix,
+    string $region,
+    string $fase,
+    string $tipoActividad,
+    string $idActividad,
+    string $escuelaFiltro
+): array {
+    $where = [];
+    $params = [];
+
+    $where[] = "e.region = :region_{$prefix}";
+    $params[":region_{$prefix}"] = $region;
 
     if ($fase !== '') {
-        $where[] = "p.fase = :fase";
-        $params[':fase'] = $fase;
+        $where[] = "p.fase = :fase_{$prefix}";
+        $params[":fase_{$prefix}"] = $fase;
     }
 
     if ($tipoActividad !== '') {
-        $where[] = "a.tipoActividad = :tipoActividad";
-        $params[':tipoActividad'] = $tipoActividad;
+        $where[] = "a.tipoActividad = :tipoActividad_{$prefix}";
+        $params[":tipoActividad_{$prefix}"] = $tipoActividad;
     }
 
     if ($idActividad !== '' && ctype_digit($idActividad)) {
-        $where[] = "a.idActividad = :idActividad";
-        $params[':idActividad'] = (int)$idActividad;
+        $where[] = "a.idActividad = :idActividad_{$prefix}";
+        $params[":idActividad_{$prefix}"] = (int)$idActividad;
     }
 
     if ($escuelaFiltro !== '') {
-        $where[] = "(e.nombreEscuela LIKE :escuela OR e.cct LIKE :escuela)";
-        $params[':escuela'] = '%' . $escuelaFiltro . '%';
+        $where[] = "(e.nombreEscuela LIKE :escuela_{$prefix} OR e.cct LIKE :escuela_{$prefix})";
+        $params[":escuela_{$prefix}"] = '%' . $escuelaFiltro . '%';
     }
 
     return [$where, $params];
 }
 
-function filtrosDocente(string $region, string $fase, string $tipoActividad, string $idActividad, string $escuelaFiltro): array {
-    $where = [
-        "p.tipoParticipante = 'DOCENTE'",
-        "p.estatus = 'ACTIVO'",
-        "e.region = :region"
-    ];
-    $params = [':region' => $region];
-
-    if ($fase !== '') {
-        $where[] = "p.fase = :fase";
-        $params[':fase'] = $fase;
-    }
-
-    if ($tipoActividad !== '') {
-        $where[] = "a.tipoActividad = :tipoActividad";
-        $params[':tipoActividad'] = $tipoActividad;
-    }
-
-    if ($idActividad !== '' && ctype_digit($idActividad)) {
-        $where[] = "a.idActividad = :idActividad";
-        $params[':idActividad'] = (int)$idActividad;
-    }
-
-    if ($escuelaFiltro !== '') {
-        $where[] = "(e.nombreEscuela LIKE :escuela OR e.cct LIKE :escuela)";
-        $params[':escuela'] = '%' . $escuelaFiltro . '%';
-    }
-
-    return [$where, $params];
-}
-
-function getCatalogoActividades(PDO $pdo, string $tipoActividad): array {
+function getCatalogoActividades(PDO $pdo, string $tipoActividad): array
+{
     $sql = "SELECT idActividad, tipoActividad, descripcion FROM actividades";
     $params = [];
 
@@ -122,8 +99,18 @@ function getCatalogoActividades(PDO $pdo, string $tipoActividad): array {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getAlumnos(PDO $pdo, string $region, string $fase, string $tipoActividad, string $idActividad, string $escuelaFiltro): array {
-    [$where, $params] = filtrosAlumno($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+function getAlumnos(
+    PDO $pdo,
+    string $region,
+    string $fase,
+    string $tipoActividad,
+    string $idActividad,
+    string $escuelaFiltro
+): array {
+    [$where, $params] = buildFilters('al', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+
+    array_unshift($where, "p.tipoParticipante = 'ALUMNO'");
+    array_unshift($where, "p.estatus = 'ACTIVO'");
 
     $sql = "
         SELECT
@@ -147,8 +134,18 @@ function getAlumnos(PDO $pdo, string $region, string $fase, string $tipoActivida
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getDocentes(PDO $pdo, string $region, string $fase, string $tipoActividad, string $idActividad, string $escuelaFiltro): array {
-    [$where, $params] = filtrosDocente($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+function getDocentes(
+    PDO $pdo,
+    string $region,
+    string $fase,
+    string $tipoActividad,
+    string $idActividad,
+    string $escuelaFiltro
+): array {
+    [$where, $params] = buildFilters('dc', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+
+    array_unshift($where, "p.tipoParticipante = 'DOCENTE'");
+    array_unshift($where, "p.estatus = 'ACTIVO'");
 
     $sql = "
         SELECT
@@ -172,9 +169,21 @@ function getDocentes(PDO $pdo, string $region, string $fase, string $tipoActivid
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getResumenFase(PDO $pdo, string $region, string $fase, string $tipoActividad, string $idActividad, string $escuelaFiltro): array {
-    [$wa, $pa] = filtrosAlumno($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
-    [$wd, $pd] = filtrosDocente($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+function getResumenFase(
+    PDO $pdo,
+    string $region,
+    string $fase,
+    string $tipoActividad,
+    string $idActividad,
+    string $escuelaFiltro
+): array {
+    [$whereA, $paramsA] = buildFilters('rfa', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+    [$whereD, $paramsD] = buildFilters('rfd', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+
+    array_unshift($whereA, "p.tipoParticipante = 'ALUMNO'");
+    array_unshift($whereA, "p.estatus = 'ACTIVO'");
+    array_unshift($whereD, "p.tipoParticipante = 'DOCENTE'");
+    array_unshift($whereD, "p.estatus = 'ACTIVO'");
 
     $sql = "
         SELECT
@@ -193,7 +202,7 @@ function getResumenFase(PDO $pdo, string $region, string $fase, string $tipoActi
             INNER JOIN alumnos al ON al.idAlumno = p.idAlumno
             INNER JOIN escuelas e ON e.cct = al.cct
             INNER JOIN actividades a ON a.idActividad = p.idActividad
-            WHERE " . implode(' AND ', $wa) . "
+            WHERE " . implode(' AND ', $whereA) . "
             GROUP BY p.fase
         ) a ON a.fase = fases.fase
         LEFT JOIN (
@@ -202,20 +211,32 @@ function getResumenFase(PDO $pdo, string $region, string $fase, string $tipoActi
             INNER JOIN docentes d ON d.idDocente = p.idDocente
             INNER JOIN escuelas e ON e.cct = d.escuela
             INNER JOIN actividades a ON a.idActividad = p.idActividad
-            WHERE " . implode(' AND ', $wd) . "
+            WHERE " . implode(' AND ', $whereD) . "
             GROUP BY p.fase
         ) d ON d.fase = fases.fase
         ORDER BY FIELD(fases.fase, 'INSTITUCIONAL', 'REGIONAL', 'ESTATAL')
     ";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute(array_merge($pa, $pd));
+    $stmt->execute($paramsA + $paramsD);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getResumenTipo(PDO $pdo, string $region, string $fase, string $tipoActividad, string $idActividad, string $escuelaFiltro): array {
-    [$wa, $pa] = filtrosAlumno($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
-    [$wd, $pd] = filtrosDocente($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+function getResumenTipo(
+    PDO $pdo,
+    string $region,
+    string $fase,
+    string $tipoActividad,
+    string $idActividad,
+    string $escuelaFiltro
+): array {
+    [$whereA, $paramsA] = buildFilters('rta', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+    [$whereD, $paramsD] = buildFilters('rtd', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+
+    array_unshift($whereA, "p.tipoParticipante = 'ALUMNO'");
+    array_unshift($whereA, "p.estatus = 'ACTIVO'");
+    array_unshift($whereD, "p.tipoParticipante = 'DOCENTE'");
+    array_unshift($whereD, "p.estatus = 'ACTIVO'");
 
     $sql = "
         SELECT
@@ -232,7 +253,7 @@ function getResumenTipo(PDO $pdo, string $region, string $fase, string $tipoActi
             INNER JOIN alumnos al ON al.idAlumno = p.idAlumno
             INNER JOIN escuelas e ON e.cct = al.cct
             INNER JOIN actividades a ON a.idActividad = p.idActividad
-            WHERE " . implode(' AND ', $wa) . "
+            WHERE " . implode(' AND ', $whereA) . "
             GROUP BY a.tipoActividad
 
             UNION ALL
@@ -245,7 +266,7 @@ function getResumenTipo(PDO $pdo, string $region, string $fase, string $tipoActi
             INNER JOIN docentes d ON d.idDocente = p.idDocente
             INNER JOIN escuelas e ON e.cct = d.escuela
             INNER JOIN actividades a ON a.idActividad = p.idActividad
-            WHERE " . implode(' AND ', $wd) . "
+            WHERE " . implode(' AND ', $whereD) . "
             GROUP BY a.tipoActividad
         ) x
         GROUP BY x.tipoActividad
@@ -253,13 +274,25 @@ function getResumenTipo(PDO $pdo, string $region, string $fase, string $tipoActi
     ";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute(array_merge($pa, $pd));
+    $stmt->execute($paramsA + $paramsD);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getTopActividades(PDO $pdo, string $region, string $fase, string $tipoActividad, string $idActividad, string $escuelaFiltro): array {
-    [$wa, $pa] = filtrosAlumno($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
-    [$wd, $pd] = filtrosDocente($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+function getTopActividades(
+    PDO $pdo,
+    string $region,
+    string $fase,
+    string $tipoActividad,
+    string $idActividad,
+    string $escuelaFiltro
+): array {
+    [$whereA, $paramsA] = buildFilters('taa', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+    [$whereD, $paramsD] = buildFilters('tad', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+
+    array_unshift($whereA, "p.tipoParticipante = 'ALUMNO'");
+    array_unshift($whereA, "p.estatus = 'ACTIVO'");
+    array_unshift($whereD, "p.tipoParticipante = 'DOCENTE'");
+    array_unshift($whereD, "p.estatus = 'ACTIVO'");
 
     $sql = "
         SELECT
@@ -278,7 +311,7 @@ function getTopActividades(PDO $pdo, string $region, string $fase, string $tipoA
             INNER JOIN alumnos al ON al.idAlumno = p.idAlumno
             INNER JOIN escuelas e ON e.cct = al.cct
             INNER JOIN actividades a ON a.idActividad = p.idActividad
-            WHERE " . implode(' AND ', $wa) . "
+            WHERE " . implode(' AND ', $whereA) . "
             GROUP BY a.tipoActividad, a.descripcion
 
             UNION ALL
@@ -292,7 +325,7 @@ function getTopActividades(PDO $pdo, string $region, string $fase, string $tipoA
             INNER JOIN docentes d ON d.idDocente = p.idDocente
             INNER JOIN escuelas e ON e.cct = d.escuela
             INNER JOIN actividades a ON a.idActividad = p.idActividad
-            WHERE " . implode(' AND ', $wd) . "
+            WHERE " . implode(' AND ', $whereD) . "
             GROUP BY a.tipoActividad, a.descripcion
         ) x
         GROUP BY x.tipoActividad, x.descripcion
@@ -300,13 +333,25 @@ function getTopActividades(PDO $pdo, string $region, string $fase, string $tipoA
     ";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute(array_merge($pa, $pd));
+    $stmt->execute($paramsA + $paramsD);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getPorEscuela(PDO $pdo, string $region, string $fase, string $tipoActividad, string $idActividad, string $escuelaFiltro): array {
-    [$wa, $pa] = filtrosAlumno($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
-    [$wd, $pd] = filtrosDocente($region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+function getPorEscuela(
+    PDO $pdo,
+    string $region,
+    string $fase,
+    string $tipoActividad,
+    string $idActividad,
+    string $escuelaFiltro
+): array {
+    [$whereA, $paramsA] = buildFilters('pea', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+    [$whereD, $paramsD] = buildFilters('ped', $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
+
+    array_unshift($whereA, "p.tipoParticipante = 'ALUMNO'");
+    array_unshift($whereA, "p.estatus = 'ACTIVO'");
+    array_unshift($whereD, "p.tipoParticipante = 'DOCENTE'");
+    array_unshift($whereD, "p.estatus = 'ACTIVO'");
 
     $sql = "
         SELECT
@@ -317,28 +362,31 @@ function getPorEscuela(PDO $pdo, string $region, string $fase, string $tipoActiv
             COALESCE(a.alumnos_activos, 0) + COALESCE(d.docentes_activos, 0) AS total_participaciones
         FROM escuelas e
         LEFT JOIN (
-            SELECT e.cct, COUNT(*) AS alumnos_activos
+            SELECT
+                e.cct,
+                COUNT(*) AS alumnos_activos
             FROM participaciones p
             INNER JOIN alumnos al ON al.idAlumno = p.idAlumno
             INNER JOIN escuelas e ON e.cct = al.cct
             INNER JOIN actividades a ON a.idActividad = p.idActividad
-            WHERE " . implode(' AND ', $wa) . "
+            WHERE " . implode(' AND ', $whereA) . "
             GROUP BY e.cct
         ) a ON a.cct = e.cct
         LEFT JOIN (
-            SELECT e.cct, COUNT(*) AS docentes_activos
+            SELECT
+                e.cct,
+                COUNT(*) AS docentes_activos
             FROM participaciones p
             INNER JOIN docentes d ON d.idDocente = p.idDocente
             INNER JOIN escuelas e ON e.cct = d.escuela
             INNER JOIN actividades a ON a.idActividad = p.idActividad
-            WHERE " . implode(' AND ', $wd) . "
+            WHERE " . implode(' AND ', $whereD) . "
             GROUP BY e.cct
         ) d ON d.cct = e.cct
         WHERE e.region = :regionBase
     ";
 
-    $params = array_merge($pa, $pd);
-    $params[':regionBase'] = $region;
+    $params = $paramsA + $paramsD + [':regionBase' => $region];
 
     if ($escuelaFiltro !== '') {
         $sql .= " AND (e.nombreEscuela LIKE :escuelaBase OR e.cct LIKE :escuelaBase)";
@@ -352,7 +400,8 @@ function getPorEscuela(PDO $pdo, string $region, string $fase, string $tipoActiv
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getSinRegistros(PDO $pdo, string $region, string $escuelaFiltro): array {
+function getSinRegistros(PDO $pdo, string $region, string $escuelaFiltro): array
+{
     $sql = "
         SELECT
             e.cct,
@@ -391,7 +440,14 @@ function getSinRegistros(PDO $pdo, string $region, string $escuelaFiltro): array
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getKpis(PDO $pdo, string $region, string $fase, string $tipoActividad, string $idActividad, string $escuelaFiltro): array {
+function getKpis(
+    PDO $pdo,
+    string $region,
+    string $fase,
+    string $tipoActividad,
+    string $idActividad,
+    string $escuelaFiltro
+): array {
     $alumnos = getAlumnos($pdo, $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
     $docentes = getDocentes($pdo, $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
     $porEscuela = getPorEscuela($pdo, $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
@@ -399,14 +455,20 @@ function getKpis(PDO $pdo, string $region, string $fase, string $tipoActividad, 
     $topActividades = getTopActividades($pdo, $region, $fase, $tipoActividad, $idActividad, $escuelaFiltro);
 
     $totalAlumnos = 0;
-    foreach ($alumnos as $row) $totalAlumnos += (int)$row['total_alumnos'];
+    foreach ($alumnos as $row) {
+        $totalAlumnos += (int)$row['total_alumnos'];
+    }
 
     $totalDocentes = 0;
-    foreach ($docentes as $row) $totalDocentes += (int)$row['total_docentes'];
+    foreach ($docentes as $row) {
+        $totalDocentes += (int)$row['total_docentes'];
+    }
 
     $escuelasConRegistros = 0;
     foreach ($porEscuela as $row) {
-        if ((int)$row['total_participaciones'] > 0) $escuelasConRegistros++;
+        if ((int)$row['total_participaciones'] > 0) {
+            $escuelasConRegistros++;
+        }
     }
 
     return [

@@ -95,9 +95,9 @@ if ($region === '') {
                     <label for="filtroTipoActividad" class="form-label">Tipo de actividad</label>
                     <select id="filtroTipoActividad" class="form-select">
                         <option value="">Todas</option>
-                        <option value="ACADEMICA">ACADEMICA</option>
-                        <option value="ARTISTICO-CULTURAL">ARTISTICO-CULTURAL</option>
-                        <option value="DEPORTIVA">DEPORTIVA</option>
+                        <option value="Académicas">ACADÉMICAS</option>
+                        <option value="Artístico-Culturales">ARTISTICO-CULTURALES</option>
+                        <option value="Deportivas">DEPORTIVAS</option>
                     </select>
                 </div>
 
