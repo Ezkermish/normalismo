@@ -75,8 +75,9 @@ function buildFilters(
     }
 
     if ($escuelaFiltro !== '') {
-        $where[] = "(e.nombreEscuela LIKE :escuela_{$prefix} OR e.cct LIKE :escuela_{$prefix})";
-        $params[":escuela_{$prefix}"] = '%' . $escuelaFiltro . '%';
+        $where[] = "(e.nombreEscuela LIKE :escuelaNombre_{$prefix} OR e.cct LIKE :escuelaCct_{$prefix})";
+        $params[":escuelaNombre_{$prefix}"] = '%' . $escuelaFiltro . '%';
+        $params[":escuelaCct_{$prefix}"] = '%' . $escuelaFiltro . '%';
     }
 
     return [$where, $params];
@@ -117,6 +118,7 @@ function getAlumnos(
             e.cct,
             e.nombreEscuela AS escuela,
             p.fase,
+            a.idActividad,
             a.tipoActividad,
             a.descripcion,
             COUNT(*) AS total_alumnos
@@ -125,7 +127,7 @@ function getAlumnos(
         INNER JOIN escuelas e ON e.cct = al.cct
         INNER JOIN actividades a ON a.idActividad = p.idActividad
         WHERE " . implode(' AND ', $where) . "
-        GROUP BY e.cct, e.nombreEscuela, p.fase, a.tipoActividad, a.descripcion
+        GROUP BY e.cct, e.nombreEscuela, p.fase, a.idActividad, a.tipoActividad, a.descripcion
         ORDER BY e.nombreEscuela, p.fase, a.tipoActividad, a.descripcion
     ";
 
@@ -152,6 +154,7 @@ function getDocentes(
             e.cct,
             e.nombreEscuela AS escuela,
             p.fase,
+            a.idActividad,
             a.tipoActividad,
             a.descripcion,
             COUNT(*) AS total_docentes
@@ -160,7 +163,7 @@ function getDocentes(
         INNER JOIN escuelas e ON e.cct = d.escuela
         INNER JOIN actividades a ON a.idActividad = p.idActividad
         WHERE " . implode(' AND ', $where) . "
-        GROUP BY e.cct, e.nombreEscuela, p.fase, a.tipoActividad, a.descripcion
+        GROUP BY e.cct, e.nombreEscuela, p.fase, a.idActividad, a.tipoActividad, a.descripcion
         ORDER BY e.nombreEscuela, p.fase, a.tipoActividad, a.descripcion
     ";
 
@@ -389,8 +392,9 @@ function getPorEscuela(
     $params = $paramsA + $paramsD + [':regionBase' => $region];
 
     if ($escuelaFiltro !== '') {
-        $sql .= " AND (e.nombreEscuela LIKE :escuelaBase OR e.cct LIKE :escuelaBase)";
-        $params[':escuelaBase'] = '%' . $escuelaFiltro . '%';
+        $sql .= " AND (e.nombreEscuela LIKE :escuelaBaseNombre OR e.cct LIKE :escuelaBaseCct)";
+        $params[':escuelaBaseNombre'] = '%' . $escuelaFiltro . '%';
+        $params[':escuelaBaseCct'] = '%' . $escuelaFiltro . '%';
     }
 
     $sql .= " ORDER BY e.nombreEscuela";
@@ -429,14 +433,86 @@ function getSinRegistros(PDO $pdo, string $region, string $escuelaFiltro): array
     $params = [':region' => $region];
 
     if ($escuelaFiltro !== '') {
-        $sql .= " AND (e.nombreEscuela LIKE :escuela OR e.cct LIKE :escuela)";
-        $params[':escuela'] = '%' . $escuelaFiltro . '%';
+        $sql .= " AND (e.nombreEscuela LIKE :escuelaNombre OR e.cct LIKE :escuelaCct)";
+        $params[':escuelaNombre'] = '%' . $escuelaFiltro . '%';
+        $params[':escuelaCct'] = '%' . $escuelaFiltro . '%';
     }
 
     $sql .= " ORDER BY e.nombreEscuela";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getDetalleAlumnos(
+    PDO $pdo,
+    string $region,
+    string $cct,
+    string $fase,
+    string $idActividad
+): array {
+    $sql = "
+        SELECT
+            CONCAT(al.apPaterno, ' ', al.apMaterno, ' ', al.nombre) AS nombreCompleto,
+            al.curp,
+            al.matricula
+        FROM participaciones p
+        INNER JOIN alumnos al ON al.idAlumno = p.idAlumno
+        INNER JOIN escuelas e ON e.cct = al.cct
+        INNER JOIN actividades a ON a.idActividad = p.idActividad
+        WHERE p.tipoParticipante = 'ALUMNO'
+          AND p.estatus = 'ACTIVO'
+          AND e.region = :region
+          AND e.cct = :cct
+          AND p.fase = :fase
+          AND a.idActividad = :idActividad
+        ORDER BY al.apPaterno, al.apMaterno, al.nombre
+    ";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':region' => $region,
+        ':cct' => $cct,
+        ':fase' => $fase,
+        ':idActividad' => (int)$idActividad
+    ]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getDetalleDocentes(
+    PDO $pdo,
+    string $region,
+    string $cct,
+    string $fase,
+    string $idActividad
+): array {
+    $sql = "
+        SELECT
+            d.nombre AS nombreCompleto,
+            d.rfc
+        FROM participaciones p
+        INNER JOIN docentes d ON d.idDocente = p.idDocente
+        INNER JOIN escuelas e ON e.cct = d.escuela
+        INNER JOIN actividades a ON a.idActividad = p.idActividad
+        WHERE p.tipoParticipante = 'DOCENTE'
+          AND p.estatus = 'ACTIVO'
+          AND e.region = :region
+          AND e.cct = :cct
+          AND p.fase = :fase
+          AND a.idActividad = :idActividad
+        ORDER BY d.nombre
+    ";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':region' => $region,
+        ':cct' => $cct,
+        ':fase' => $fase,
+        ':idActividad' => (int)$idActividad
+    ]);
+
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -509,6 +585,30 @@ try {
 
         case 'sin_registros':
             jsonResponse(getSinRegistros($pdo, $region, $escuelaFiltro));
+
+        case 'detalle_alumnos':
+            $cctDetalle = trim((string)($_GET['cct'] ?? ''));
+            $faseDetalle = trim((string)($_GET['faseDetalle'] ?? ''));
+            $idActividadDetalle = trim((string)($_GET['idActividadDetalle'] ?? ''));
+
+            if ($cctDetalle === '' || $faseDetalle === '' || !ctype_digit($idActividadDetalle)) {
+                http_response_code(400);
+                jsonResponse(['error' => 'Parámetros incompletos para detalle de alumnos']);
+            }
+
+            jsonResponse(getDetalleAlumnos($pdo, $region, $cctDetalle, $faseDetalle, $idActividadDetalle));
+
+        case 'detalle_docentes':
+            $cctDetalle = trim((string)($_GET['cct'] ?? ''));
+            $faseDetalle = trim((string)($_GET['faseDetalle'] ?? ''));
+            $idActividadDetalle = trim((string)($_GET['idActividadDetalle'] ?? ''));
+
+            if ($cctDetalle === '' || $faseDetalle === '' || !ctype_digit($idActividadDetalle)) {
+                http_response_code(400);
+                jsonResponse(['error' => 'Parámetros incompletos para detalle de docentes']);
+            }
+
+            jsonResponse(getDetalleDocentes($pdo, $region, $cctDetalle, $faseDetalle, $idActividadDetalle));
 
         default:
             http_response_code(400);

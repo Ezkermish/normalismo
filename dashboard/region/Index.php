@@ -58,9 +58,44 @@ if ($region === '') {
         .table thead th{ background:var(--c-wine); color:#fff; vertical-align:middle; }
         .small-muted{ font-size:.9rem; color:#6c757d; }
         .chart-wrap{ position:relative; min-height:360px; }
-        .tab-pane{ padding-top:1rem; }
-        .report-block{ page-break-inside: avoid; }
-        #pdfArea .card { box-shadow: none !important; }
+
+        #pdfReport{
+            display:none;
+            background:#fff;
+            color:#000;
+            padding:20px;
+            font-size:12px;
+        }
+
+        #pdfReport h2,
+        #pdfReport h3{
+            color:#56212f;
+            margin-top:18px;
+            margin-bottom:10px;
+        }
+
+        #pdfReport table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:8px;
+        }
+
+        #pdfReport th,
+        #pdfReport td{
+            border:1px solid #999;
+            padding:6px;
+            text-align:left;
+        }
+
+        #pdfReport th{
+            background:#56212f;
+            color:#fff;
+        }
+
+        .fila-alumno-detalle:hover,
+        .fila-docente-detalle:hover{
+            background:#f8f4f6;
+        }
     </style>
 </head>
 <body>
@@ -75,7 +110,7 @@ if ($region === '') {
     </div>
 </nav>
 
-<div class="container-fluid px-4" id="pdfArea">
+<div class="container-fluid px-4">
 
     <div class="card shadow-sm mb-4">
         <div class="card-header section-title">Filtros de consulta</div>
@@ -95,9 +130,9 @@ if ($region === '') {
                     <label for="filtroTipoActividad" class="form-label">Tipo de actividad</label>
                     <select id="filtroTipoActividad" class="form-select">
                         <option value="">Todas</option>
-                        <option value="Académicas">ACADÉMICAS</option>
-                        <option value="Artístico-Culturales">ARTISTICO-CULTURALES</option>
-                        <option value="Deportivas">DEPORTIVAS</option>
+                        <option value="Académicas">Académicas</option>
+                        <option value="Artístico-Culturales">Artístico-Culturales</option>
+                        <option value="Deportivas">Deportivas</option>
                     </select>
                 </div>
 
@@ -132,7 +167,7 @@ if ($region === '') {
         </div>
     </div>
 
-    <div class="row g-3 mb-4 report-block">
+    <div class="row g-3 mb-4">
         <div class="col-md-2">
             <div class="card card-kpi shadow-sm">
                 <div class="card-body">
@@ -192,7 +227,7 @@ if ($region === '') {
 
     <div class="tab-content bg-white border border-top-0 p-3 mb-4">
         <div class="tab-pane fade show active" id="tabResumen">
-            <div class="row g-4 mb-4 report-block">
+            <div class="row g-4 mb-4">
                 <div class="col-lg-6">
                     <div class="card shadow-sm">
                         <div class="card-header section-title">Gráfica por fase</div>
@@ -216,7 +251,7 @@ if ($region === '') {
                 </div>
             </div>
 
-            <div class="row g-4 report-block">
+            <div class="row g-4">
                 <div class="col-lg-6">
                     <div class="card shadow-sm">
                         <div class="card-header section-title">Resumen por fase</div>
@@ -279,7 +314,10 @@ if ($region === '') {
 
         <div class="tab-pane fade" id="tabAlumnos">
             <div class="card shadow-sm">
-                <div class="card-header section-title">Participaciones activas de alumnos</div>
+                <div class="card-header section-title">
+                    Participaciones activas de alumnos
+                    <span class="small text-muted">(clic en la fila para ver detalle)</span>
+                </div>
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-striped" id="tablaAlumnos">
                         <thead>
@@ -300,7 +338,10 @@ if ($region === '') {
 
         <div class="tab-pane fade" id="tabDocentes">
             <div class="card shadow-sm">
-                <div class="card-header section-title">Participaciones activas de docentes</div>
+                <div class="card-header section-title">
+                    Participaciones activas de docentes
+                    <span class="small text-muted">(clic en la fila para ver detalle)</span>
+                </div>
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-striped" id="tablaDocentes">
                         <thead>
@@ -355,6 +396,71 @@ if ($region === '') {
             </div>
         </div>
     </div>
+
+    <div id="pdfReport">
+        <h2>Reporte Regional de Participaciones</h2>
+        <p><strong>Región:</strong> <?= htmlspecialchars($region) ?></p>
+        <p id="pdfFiltros"></p>
+
+        <h3>Indicadores</h3>
+        <table>
+            <tbody id="pdfKpis"></tbody>
+        </table>
+
+        <h3>Resumen por fase</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Fase</th>
+                    <th>Alumnos</th>
+                    <th>Docentes</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="pdfResumenFase"></tbody>
+        </table>
+
+        <h3>Resumen por tipo de actividad</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo de actividad</th>
+                    <th>Alumnos</th>
+                    <th>Docentes</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="pdfResumenTipo"></tbody>
+        </table>
+
+        <h3>Top de actividades</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Actividad</th>
+                    <th>Alumnos</th>
+                    <th>Docentes</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="pdfTopActividades"></tbody>
+        </table>
+
+        <h3>Resumen por escuela</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>CCT</th>
+                    <th>Escuela</th>
+                    <th>Alumnos</th>
+                    <th>Docentes</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="pdfPorEscuela"></tbody>
+        </table>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -398,7 +504,7 @@ function buildQuery(params) {
     return new URLSearchParams(params).toString();
 }
 
-function llenarTabla(selector, rows, columns) {
+function llenarTabla(selector, rows, columns, rowClass = '') {
     const tbody = $(selector + ' tbody');
     tbody.empty();
 
@@ -407,10 +513,18 @@ function llenarTabla(selector, rows, columns) {
         return;
     }
 
-    rows.forEach(row => {
-        let tr = '<tr>';
+    rows.forEach((row, index) => {
+        let attrs = '';
+        if (rowClass) attrs += ' class="' + rowClass + '"';
+        if (row.cct) attrs += ' data-cct="' + escapeHtml(row.cct) + '"';
+        if (row.fase) attrs += ' data-fase="' + escapeHtml(row.fase) + '"';
+        if (row.idActividad) attrs += ' data-idactividad="' + escapeHtml(row.idActividad) + '"';
+        attrs += ' data-rowindex="' + index + '"';
+
+        let tr = '<tr' + attrs + (rowClass ? ' style="cursor:pointer;"' : '') + '>';
         columns.forEach(col => tr += '<td>' + escapeHtml(row[col]) + '</td>');
         tr += '</tr>';
+
         tbody.append(tr);
     });
 }
@@ -482,8 +596,10 @@ function renderAllTables() {
     llenarTabla('#tablaResumenFase', state.resumenFase, ['fase', 'alumnos', 'docentes', 'total']);
     llenarTabla('#tablaResumenTipo', state.resumenTipo, ['tipoActividad', 'alumnos', 'docentes', 'total']);
     llenarTabla('#tablaTopActividades', state.topActividades, ['tipoActividad', 'descripcion', 'alumnos', 'docentes', 'total']);
-    llenarTabla('#tablaAlumnos', state.alumnos, ['cct', 'escuela', 'fase', 'tipoActividad', 'descripcion', 'total_alumnos']);
-    llenarTabla('#tablaDocentes', state.docentes, ['cct', 'escuela', 'fase', 'tipoActividad', 'descripcion', 'total_docentes']);
+
+    llenarTabla('#tablaAlumnos', state.alumnos, ['cct', 'escuela', 'fase', 'tipoActividad', 'descripcion', 'total_alumnos'], 'fila-alumno-detalle');
+    llenarTabla('#tablaDocentes', state.docentes, ['cct', 'escuela', 'fase', 'tipoActividad', 'descripcion', 'total_docentes'], 'fila-docente-detalle');
+
     llenarTabla('#tablaPorEscuela', state.porEscuela, ['cct', 'escuela', 'alumnos_activos', 'docentes_activos', 'total_participaciones']);
     llenarTabla('#tablaSinRegistros', state.sinRegistros, ['cct', 'escuela', 'region']);
 }
@@ -528,6 +644,105 @@ async function recargarTodo() {
     }
 }
 
+async function cargarDetalleAlumnos(cct, fase, idActividad) {
+    return await fetchJson('detalle_alumnos', {
+        cct: cct,
+        faseDetalle: fase,
+        idActividadDetalle: idActividad
+    });
+}
+
+async function cargarDetalleDocentes(cct, fase, idActividad) {
+    return await fetchJson('detalle_docentes', {
+        cct: cct,
+        faseDetalle: fase,
+        idActividadDetalle: idActividad
+    });
+}
+
+function removerDetalleSiguiente($fila) {
+    const $next = $fila.next('.fila-detalle-expandida');
+    if ($next.length) {
+        $next.remove();
+        return true;
+    }
+    return false;
+}
+
+function construirTablaDetalleAlumnos(data) {
+    if (!data || data.length === 0) {
+        return '<div class="text-muted">Sin registros detallados.</div>';
+    }
+
+    let html = `
+        <div class="p-2">
+            <div class="fw-bold mb-2">Detalle de alumnos</div>
+            <table class="table table-sm table-bordered mb-0">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>CURP</th>
+                        <th>Matrícula</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    data.forEach(item => {
+        html += `
+            <tr>
+                <td>${escapeHtml(item.nombreCompleto)}</td>
+                <td>${escapeHtml(item.curp)}</td>
+                <td>${escapeHtml(item.matricula)}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    return html;
+}
+
+function construirTablaDetalleDocentes(data) {
+    if (!data || data.length === 0) {
+        return '<div class="text-muted">Sin registros detallados.</div>';
+    }
+
+    let html = `
+        <div class="p-2">
+            <div class="fw-bold mb-2">Detalle de docentes</div>
+            <table class="table table-sm table-bordered mb-0">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>RFC</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    data.forEach(item => {
+        html += `
+            <tr>
+                <td>${escapeHtml(item.nombreCompleto)}</td>
+                <td>${escapeHtml(item.rfc)}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    return html;
+}
+
 function exportExcelClient() {
     const wb = XLSX.utils.book_new();
 
@@ -540,8 +755,8 @@ function exportExcelClient() {
         { Indicador: 'Tipos de actividad', Valor: state.kpis.total_tipos_actividad ?? 0 },
         { Indicador: 'Actividades distintas', Valor: state.kpis.total_actividades ?? 0 }
     ]);
-    XLSX.utils.book_append_sheet(wb, resumenSheet, 'Resumen');
 
+    XLSX.utils.book_append_sheet(wb, resumenSheet, 'Resumen');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.resumenFase), 'ResumenFase');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.resumenTipo), 'ResumenTipo');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.topActividades), 'TopActividades');
@@ -554,20 +769,107 @@ function exportExcelClient() {
     XLSX.writeFile(wb, nombre);
 }
 
+function generarHtmlPdf() {
+    const f = filtros();
+    const actividadTxt = $('#filtroActividad option:selected').text() || 'Todas';
+
+    $('#pdfFiltros').html(
+        '<strong>Filtros:</strong> ' +
+        'Fase: ' + escapeHtml(f.fase || 'Todas') + ' | ' +
+        'Tipo de actividad: ' + escapeHtml(f.tipoActividad || 'Todas') + ' | ' +
+        'Actividad: ' + escapeHtml(actividadTxt) + ' | ' +
+        'Escuela/CCT: ' + escapeHtml(f.escuela || 'Todas')
+    );
+
+    $('#pdfKpis').html(`
+        <tr><td>Total alumnos activos</td><td>${escapeHtml(state.kpis.total_alumnos ?? 0)}</td></tr>
+        <tr><td>Total docentes activos</td><td>${escapeHtml(state.kpis.total_docentes ?? 0)}</td></tr>
+        <tr><td>Total participaciones</td><td>${escapeHtml(state.kpis.total_participaciones ?? 0)}</td></tr>
+        <tr><td>Escuelas con registros</td><td>${escapeHtml(state.kpis.total_escuelas ?? 0)}</td></tr>
+        <tr><td>Tipos de actividad</td><td>${escapeHtml(state.kpis.total_tipos_actividad ?? 0)}</td></tr>
+        <tr><td>Actividades distintas</td><td>${escapeHtml(state.kpis.total_actividades ?? 0)}</td></tr>
+    `);
+
+    $('#pdfResumenFase').html(
+        state.resumenFase.map(x => `
+            <tr>
+                <td>${escapeHtml(x.fase)}</td>
+                <td>${escapeHtml(x.alumnos)}</td>
+                <td>${escapeHtml(x.docentes)}</td>
+                <td>${escapeHtml(x.total)}</td>
+            </tr>
+        `).join('')
+    );
+
+    $('#pdfResumenTipo').html(
+        state.resumenTipo.map(x => `
+            <tr>
+                <td>${escapeHtml(x.tipoActividad)}</td>
+                <td>${escapeHtml(x.alumnos)}</td>
+                <td>${escapeHtml(x.docentes)}</td>
+                <td>${escapeHtml(x.total)}</td>
+            </tr>
+        `).join('')
+    );
+
+    $('#pdfTopActividades').html(
+        state.topActividades.slice(0, 20).map(x => `
+            <tr>
+                <td>${escapeHtml(x.tipoActividad)}</td>
+                <td>${escapeHtml(x.descripcion)}</td>
+                <td>${escapeHtml(x.alumnos)}</td>
+                <td>${escapeHtml(x.docentes)}</td>
+                <td>${escapeHtml(x.total)}</td>
+            </tr>
+        `).join('')
+    );
+
+    $('#pdfPorEscuela').html(
+        state.porEscuela.map(x => `
+            <tr>
+                <td>${escapeHtml(x.cct)}</td>
+                <td>${escapeHtml(x.escuela)}</td>
+                <td>${escapeHtml(x.alumnos_activos)}</td>
+                <td>${escapeHtml(x.docentes_activos)}</td>
+                <td>${escapeHtml(x.total_participaciones)}</td>
+            </tr>
+        `).join('')
+    );
+}
+
 function exportPdfClient() {
-    const el = document.getElementById('pdfArea');
-    const nombre = 'reporte_regional_<?= strtolower(preg_replace("/\s+/", "_", $region)) ?>_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.pdf';
+    try {
+        generarHtmlPdf();
 
-    const opt = {
-        margin: 0.3,
-        filename: nombre,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
-        pagebreak: { mode: ['css', 'legacy'] }
-    };
+        const el = document.getElementById('pdfReport');
+        el.style.display = 'block';
 
-    html2pdf().set(opt).from(el).save();
+        const nombre = 'reporte_regional_<?= strtolower(preg_replace("/\s+/", "_", $region)) ?>_' +
+            new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.pdf';
+
+        const opt = {
+            margin: 0.3,
+            filename: nombre,
+            image: { type: 'jpeg', quality: 0.95 },
+            html2canvas: { scale: 1, useCORS: true },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        html2pdf()
+            .set(opt)
+            .from(el)
+            .save()
+            .then(() => { el.style.display = 'none'; })
+            .catch((err) => {
+                el.style.display = 'none';
+                console.error(err);
+                alert('No fue posible generar el PDF.\n\n' + err.message);
+            });
+    } catch (err) {
+        console.error(err);
+        alert('No fue posible preparar el PDF.\n\n' + err.message);
+    }
 }
 
 $(async function() {
@@ -594,6 +896,58 @@ $(async function() {
 
     $('#btnExcel').on('click', exportExcelClient);
     $('#btnPdf').on('click', exportPdfClient);
+
+    $(document).on('click', '.fila-alumno-detalle', async function() {
+        const $fila = $(this);
+
+        if (removerDetalleSiguiente($fila)) return;
+
+        const cct = $fila.data('cct');
+        const fase = $fila.data('fase');
+        const idActividad = $fila.data('idactividad');
+
+        try {
+            const data = await cargarDetalleAlumnos(cct, fase, idActividad);
+            const colspan = $fila.children('td').length;
+
+            $fila.after(`
+                <tr class="fila-detalle-expandida">
+                    <td colspan="${colspan}" style="background:#f8f9fa;">
+                        ${construirTablaDetalleAlumnos(data)}
+                    </td>
+                </tr>
+            `);
+        } catch (err) {
+            console.error(err);
+            alert('No fue posible cargar el detalle de alumnos.\n\n' + err.message);
+        }
+    });
+
+    $(document).on('click', '.fila-docente-detalle', async function() {
+        const $fila = $(this);
+
+        if (removerDetalleSiguiente($fila)) return;
+
+        const cct = $fila.data('cct');
+        const fase = $fila.data('fase');
+        const idActividad = $fila.data('idactividad');
+
+        try {
+            const data = await cargarDetalleDocentes(cct, fase, idActividad);
+            const colspan = $fila.children('td').length;
+
+            $fila.after(`
+                <tr class="fila-detalle-expandida">
+                    <td colspan="${colspan}" style="background:#f8f9fa;">
+                        ${construirTablaDetalleDocentes(data)}
+                    </td>
+                </tr>
+            `);
+        } catch (err) {
+            console.error(err);
+            alert('No fue posible cargar el detalle de docentes.\n\n' + err.message);
+        }
+    });
 });
 </script>
 </body>
