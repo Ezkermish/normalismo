@@ -1,9 +1,9 @@
 <?php
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
-
 declare(strict_types=1);
+
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL);
 
 session_start();
 require_once __DIR__ . '/../../config/app.php';
@@ -33,13 +33,13 @@ if ($region === '') {
     exit;
 }
 
-$action          = trim((string)($_GET['action'] ?? ''));
-$fase            = trim((string)($_GET['fase'] ?? ''));
-$tipoActividad   = trim((string)($_GET['tipoActividad'] ?? ''));
-$idActividad     = trim((string)($_GET['idActividad'] ?? ''));
-$escuelaFiltro   = trim((string)($_GET['escuela'] ?? ''));
+$action        = trim((string)($_GET['action'] ?? ''));
+$fase          = trim((string)($_GET['fase'] ?? ''));
+$tipoActividad = trim((string)($_GET['tipoActividad'] ?? ''));
+$idActividad   = trim((string)($_GET['idActividad'] ?? ''));
+$escuelaFiltro = trim((string)($_GET['escuela'] ?? ''));
 
-$pdo = db();
+//$pdo = db();
 
 function jsonResponse($data): void {
     echo json_encode($data, JSON_UNESCAPED_UNICODE);

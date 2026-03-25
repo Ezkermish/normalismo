@@ -1,10 +1,9 @@
 <?php
+declare(strict_types=1);
 
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-
-declare(strict_types=1);
 
 session_start();
 require_once __DIR__ . '/../../config/app.php';
@@ -420,7 +419,19 @@ function llenarTabla(selector, rows, columns) {
 async function fetchJson(action, extra = {}) {
     const url = BASE_DATA_URL + '?' + buildQuery({ action, ...filtros(), ...extra });
     const resp = await fetch(url);
-    return await resp.json();
+
+    if (!resp.ok) {
+        const texto = await resp.text();
+        throw new Error('Error HTTP ' + resp.status + ': ' + texto);
+    }
+
+    const texto = await resp.text();
+
+    try {
+        return JSON.parse(texto);
+    } catch (e) {
+        throw new Error('La respuesta no es JSON válido: ' + texto);
+    }
 }
 
 async function cargarActividades() {
@@ -479,38 +490,43 @@ function renderAllTables() {
 }
 
 async function recargarTodo() {
-    const [
-        kpis,
-        resumenFase,
-        resumenTipo,
-        topActividades,
-        alumnos,
-        docentes,
-        porEscuela,
-        sinRegistros
-    ] = await Promise.all([
-        fetchJson('kpis'),
-        fetchJson('resumen_fase'),
-        fetchJson('resumen_tipo'),
-        fetchJson('top_actividades'),
-        fetchJson('alumnos'),
-        fetchJson('docentes'),
-        fetchJson('por_escuela'),
-        fetchJson('sin_registros')
-    ]);
+    try {
+        const [
+            kpis,
+            resumenFase,
+            resumenTipo,
+            topActividades,
+            alumnos,
+            docentes,
+            porEscuela,
+            sinRegistros
+        ] = await Promise.all([
+            fetchJson('kpis'),
+            fetchJson('resumen_fase'),
+            fetchJson('resumen_tipo'),
+            fetchJson('top_actividades'),
+            fetchJson('alumnos'),
+            fetchJson('docentes'),
+            fetchJson('por_escuela'),
+            fetchJson('sin_registros')
+        ]);
 
-    state.kpis = kpis || {};
-    state.resumenFase = resumenFase || [];
-    state.resumenTipo = resumenTipo || [];
-    state.topActividades = topActividades || [];
-    state.alumnos = alumnos || [];
-    state.docentes = docentes || [];
-    state.porEscuela = porEscuela || [];
-    state.sinRegistros = sinRegistros || [];
+        state.kpis = kpis || {};
+        state.resumenFase = resumenFase || [];
+        state.resumenTipo = resumenTipo || [];
+        state.topActividades = topActividades || [];
+        state.alumnos = alumnos || [];
+        state.docentes = docentes || [];
+        state.porEscuela = porEscuela || [];
+        state.sinRegistros = sinRegistros || [];
 
-    renderKpis();
-    renderCharts();
-    renderAllTables();
+        renderKpis();
+        renderCharts();
+        renderAllTables();
+    } catch (err) {
+        console.error(err);
+        alert('Ocurrió un error al cargar la información regional. Revisa data.php o el error_log.');
+    }
 }
 
 function exportExcelClient() {
